@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<package>
+  <name>csoko_launchers</name>
+  <version>0.0.0</version>
+  <description>The csoko_launchers package</description>
+
+  <!-- One maintainer tag required, multiple allowed, one person per tag --> 
+  <!-- Example:  -->
+  <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
+  <maintainer email="dmendonca@todo.todo">dmendonca</maintainer>
+
+
+  <!-- One license tag required, multiple allowed, one license per tag -->
+  <!-- Commonly used license strings: -->
+  <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
+  <license>TODO</license>
+
+  <author>dmendonca</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  
+  <run_depend>csoko_thinker</run_depend>
+  <run_depend>stdr_server</run_depend>
+  <run_depend>stdr_robot</run_depend>
+  <run_depend>stdr_gui</run_depend>
+  <run_depend>rviz</run_depend>
+
+
+  <!-- The export tag contains other, unspecified, tags -->
+  <export>
+    <!-- Other tools can request additional information be placed here -->
+
+  </export>
+</package>
