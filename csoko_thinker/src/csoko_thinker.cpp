@@ -2,117 +2,164 @@
 
 int main(int argc,char **argv)
 {
-  ros::init(argc, argv, "csoko_thinker_node", ros::init_options::AnonymousName);
-  csoko_thinker::CSoko_Thinker obj(argc, argv);
-  ros::spin();
-  return 0;
+	ros::init(argc, argv, "csoko_thinker_node", ros::init_options::AnonymousName);
+	csoko_thinker::CSoko_Thinker obj(argc, argv);
+	ros::spin();
+	return 0;
 }
 
 namespace csoko_thinker{
- 
-  CSoko_Thinker::CSoko_Thinker(int argc,char **argv)
-  {
+
+CSoko_Thinker::CSoko_Thinker(int argc,char **argv) : odom_state(0)
+{
+	/*
     if(argc != 3)
     {
       ROS_ERROR(
         "Usage : csoko_thinker csoko_thinker <robot_frame_id> <laser_frame_id>");
       exit(0);
     }
-    
+
     std::string robot_topic = std::string("/") + std::string(argv[1]);
-    
-    laser_topic_ = robot_topic + std::string("/") + std::string(argv[2]);
-    speeds_topic_ = robot_topic + std::string("/cmd_vel");
+
+    laser_topic = robot_topic + std::string("/") + std::string(argv[2]);
+    speeds_topic = robot_topic + std::string("/cmd_vel");
     odom_topic = robot_topic +  std::string("/odom");
 
     odom_state = 0;
-    
-    subscriber_ = n_.subscribe(laser_topic_.c_str(), 1, &CSoko_Thinker::callback, this);
+
+    laser_sub = n_.subscribe(laser_topic.c_str(), 1, &CSoko_Thinker::callback, this);
     odom_sub =   n_.subscribe(odom_topic.c_str(), 1, &CSoko_Thinker::odometryCallback, this);
-    
-    cmd_vel_pub_ = n_.advertise<geometry_msgs::Twist>(speeds_topic_.c_str(), 1);
-  }
-  
 
-  CSoko_Thinker::~CSoko_Thinker(void)
-  {
-    
-  }
-  
+    cmd_vel_pub = n_.advertise<geometry_msgs::Twist>(speeds_topic.c_str(), 1);
+	 */
 
-  void CSoko_Thinker::callback(const sensor_msgs::LaserScan& msg)
-  {
-    scan_ = msg;
-    float linear = 0, rotational = 0;
-    for(unsigned int i = 0 ; i < scan_.ranges.size() ; i++)
-    {
-      float real_dist = scan_.ranges[i];
-      linear -= cos(scan_.angle_min + i * scan_.angle_increment) 
-        / (1.0 + real_dist * real_dist);
-      rotational -= sin(scan_.angle_min + i * scan_.angle_increment) 
-        / (1.0 + real_dist * real_dist);
-    }
-    geometry_msgs::Twist cmd;
-    
-    linear /= scan_.ranges.size();
-    rotational /= scan_.ranges.size();
-    
-    //~ ROS_ERROR("%f %f",linear,rotational);
-    
-    if(linear > 0.3)
-    {
-      linear = 0.3;
-    }
-    else if(linear < -0.3)
-    {
-      linear = -0.3;
-    }
+	occ_grid_topic = "map";
+	occ_grid_sub = nh.subscribe(occ_grid_topic.c_str(), 1, &CSoko_Thinker::mapCallback, this);
 
-    cmd.linear.x = (odom_state < 3) ? 0.3 + linear : 0;
-    cmd.angular.z = (odom_state > 1) ? 0.0174532925 * 10 : rotational;
-    cmd_vel_pub_.publish(cmd);
-  }
-  
-  
-  void CSoko_Thinker::odometryCallback(const nav_msgs::Odometry msg){
-    
-    
-    
-    if(odom_state == 0){
-      odom_msg = msg;
-      odom_state = 1;
-      return;
-    }
-    
-    float currentXPos = msg.pose.pose.position.x, 
-          currentYPos = msg.pose.pose.position.y,
-          oldXPos = odom_msg.pose.pose.position.x, 
-          oldYPos = odom_msg.pose.pose.position.y;
-    float delta = 0.0000001;
-    
-    bool stuckX = ((currentXPos - oldXPos) == 0) ? true : false;
-    bool stuckY = ((currentYPos - oldYPos) == 0) ? true: false;
-    
-    float dx = std::abs(currentXPos - oldXPos),
-          dy = std::abs(currentYPos - oldYPos);
-           
-     if(stuckX && stuckY){
-        
-        if(odom_state == 1) odom_state = 2;
-        else if(odom_state == 2)  odom_state = 3;
-        else if(odom_state == 3) odom_state = 2;
-        
-        ROS_INFO("dx = %f ; dy =  %f ; odomState= %i", dx, dy, odom_state);
-     }
-    else{
-      odom_state = 1;
-      ROS_INFO("dx = %f ; dy =  %f ; odomState= %i", dx, dy, odom_state);
-    }  
-    //odom_msg.pose.pose.position.z = 0.0;
-      
-    //save it 
-    odom_msg = msg;  
-    
-  }
-  
+
+
+
+}
+
+
+CSoko_Thinker::~CSoko_Thinker(void)
+{
+
+}
+
+void CSoko_Thinker::mapCallback(const nav_msgs::OccupancyGrid& msg){
+	this->occ_grid_msg = msg;
+	ROS_INFO("received map!");
+
+	this->map_height = msg.info.height;
+	this->map_width = msg.info.width;
+	ROS_INFO("map_height: %i\nmap_width: %i", this->map_height, this->map_width);
+
+
+
+	this->my_map = new int8_t*[this->map_height];
+	for(int i = 0; i < this->map_height; i++){
+		my_map[i] = new int8_t[this->map_width];
+
+		for(int j = 0; j < this->map_width; j++){
+			my_map[i][j] = msg.data.at(i*j);
+		}
+	}
+
+	if(CSOKO_THINKER_DEBUG){
+		ROS_INFO("CSOKO_THINKER_DEBUG");
+		try{
+
+			std::ofstream outfile ("map.csv");
+			for(int i = 0; i < this->map_height; i++){
+				for(int j = 0; j < this->map_width; j++){
+					outfile << (int) my_map[i][j] << ",";
+				}
+				outfile << std::endl;
+			}
+			outfile.close();
+		} catch(...){
+			ROS_INFO("Exception!");
+		}
+
+	}
+}
+
+
+void CSoko_Thinker::callback(const sensor_msgs::LaserScan& msg)
+{
+	laser_scan_msg = msg;
+	float linear = 0, rotational = 0;
+	for(unsigned int i = 0 ; i < laser_scan_msg.ranges.size() ; i++)
+	{
+		float real_dist = laser_scan_msg.ranges[i];
+		linear -= cos(laser_scan_msg.angle_min + i * laser_scan_msg.angle_increment)
+        								/ (1.0 + real_dist * real_dist);
+		rotational -= sin(laser_scan_msg.angle_min + i * laser_scan_msg.angle_increment)
+        								/ (1.0 + real_dist * real_dist);
+	}
+	geometry_msgs::Twist cmd;
+
+	linear /= laser_scan_msg.ranges.size();
+	rotational /= laser_scan_msg.ranges.size();
+
+	//~ ROS_ERROR("%f %f",linear,rotational);
+
+	if(linear > 0.3)
+	{
+		linear = 0.3;
+	}
+	else if(linear < -0.3)
+	{
+		linear = -0.3;
+	}
+
+	cmd.linear.x = (odom_state < 3) ? 0.3 + linear : 0;
+	cmd.angular.z = (odom_state > 1) ? 0.0174532925 * 10 : rotational;
+	cmd_vel_pub.publish(cmd);
+}
+
+
+void CSoko_Thinker::odometryCallback(const nav_msgs::Odometry msg){
+
+
+
+	if(odom_state == 0){
+		odom_msg = msg;
+		odom_state = 1;
+		return;
+	}
+
+	float currentXPos = msg.pose.pose.position.x;
+	float currentYPos = msg.pose.pose.position.y;
+	float oldXPos = odom_msg.pose.pose.position.x;
+	float oldYPos = odom_msg.pose.pose.position.y;
+	float delta = 0.0000001;
+
+	bool stuckX = ((currentXPos - oldXPos) == 0) ? true : false;
+	bool stuckY = ((currentYPos - oldYPos) == 0) ? true: false;
+
+	float dx = std::abs(currentXPos - oldXPos),
+			dy = std::abs(currentYPos - oldYPos);
+
+	if(stuckX && stuckY){
+
+		if(odom_state == 1) odom_state = 2;
+		else if(odom_state == 2)  odom_state = 3;
+		else if(odom_state == 3) odom_state = 2;
+
+		ROS_INFO("dx = %f ; dy =  %f ; odomState= %i", dx, dy, odom_state);
+	}
+	else{
+		odom_state = 1;
+		ROS_INFO("dx = %f ; dy =  %f ; odomState= %i", dx, dy, odom_state);
+	}
+	//odom_msg.pose.pose.position.z = 0.0;
+
+	//save it
+	odom_msg = msg;
+
+}
+
 }
