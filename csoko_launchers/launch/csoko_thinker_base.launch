@@ -4,7 +4,7 @@
 	
 	<node pkg="csoko_thinker" type="csoko_thinker" name="csoko_thinker_node_" output="screen" args="" />
 	
-	<node type="stdr_server_node" pkg="stdr_server" name="stdr_server" output="screen" args="$(find stdr_resources)/maps/sparse_obstacles.yaml"/>
+	<node type="stdr_server_node" pkg="stdr_server" name="stdr_server" output="screen" args="$(find csoko_resources)/maps/test.yaml"/>
 
 	<node pkg="tf" type="static_transform_publisher" name="world2map" args="0 0 0 0 0 0  world map 100" />
 	
