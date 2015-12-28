@@ -17,17 +17,15 @@ namespace csoko_thinker{
 		drawY = y;
 	}
 	
-	CSokoRobot::CSokoRobot(int x, int y)
+	CSokoRobot::CSokoRobot(int x, int y) : CSokoObject(x,y)
 	{
-		CSokoObject::CSokoRobot(x,y);
 		string s = ros::package::getPath("csoko_thinker") + "/csoko_images/" + "robot";
 		QString images_path = QString::fromAscii(s.c_str(), s.length());
 		this->icon.load(images_path);
 	}
 	
-	CSokoBox::CSokoBox(int x, int y)
+	CSokoBox::CSokoBox(int x, int y) : CSokoObject(x,y)
 	{
-		CSokoObject::CSokoBox(x,y);
 		string s = ros::package::getPath("csoko_thinker") + "/csoko_images/" + "box";
 		QString images_path = QString::fromAscii(s.c_str(), s.length());
 		this->icon.load(images_path);
@@ -126,11 +124,11 @@ namespace csoko_thinker{
 				CSokoTile tile = grid[i][j];
 				if(tile.isGoal)
 				{
-					frame.draw(tile.object,QPointF(j,goal.height()-i*16));		//TODO MAGIC NUMBER
+					frame.draw(tile.object.icon,QPointF(j,goal.height()-i*16));		//TODO MAGIC NUMBER
 				}
 				
 				if(tile.hasObject)
-					frame.draw(tile.object,QPointF(tile.object.drawX,bg.height()-tile.object.drawY));
+					frame.draw(tile.object.icon,QPointF(tile.object.drawX,bg.height()-tile.object.drawY));
 			}
 		}
 	}
