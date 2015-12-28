@@ -19,6 +19,13 @@
 #include <sensor_msgs/LaserScan.h>
 #include <sensor_msgs/Range.h>
 
+#include <QImage>
+#include <QPainter>
+#include <QPen>
+#include <QPointF>
+#include <QColor>
+#include <QRgb>
+
 #include <iostream>
 #include <fstream>
 

@@ -15,6 +15,8 @@ namespace csoko_thinker
 class SokobanObject
 {
 	public:
+		double drawX, drawY;
+
 		SokobanObject();
 };
 
