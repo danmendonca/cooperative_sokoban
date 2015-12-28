@@ -4,12 +4,13 @@
 #include <cstdlib>
 #include <ctime>
 
+using namespace csoko_thinker;
 
 int main(int argc,char **argv)
 {
 	ros::init(argc, argv, "csoko_thinker_node", ros::init_options::AnonymousName);
 	
-	csoko_thinker::CSoko_Thinker obj(argc, argv);
+	CSoko_Thinker obj(argc, argv);
 	ros::spin();
 	return 0;
 }
@@ -30,9 +31,9 @@ CSoko_Thinker::CSoko_Thinker(int argc,char **argv)
 /*	string name(argv[1]);
 	map(name);*/
 	frame.show();
-	
-	srand(time(NULL));
-	ros::Timer timer = nh.createTimer(ros::Duration(0.1), onUpdate);
+
+//	ros::Timer timer = nh.createTimer(ros::Duration(0.1), onUpdate);
+	ros::Timer timer = nh.createTimer(ros::Duration(0.1), &CSoko_Thinker::timerCallback,this);
 	///TODO START LOGIC
 	
 	/*
@@ -71,7 +72,7 @@ CSoko_Thinker::~CSoko_Thinker(void)
 
 }
 
-void CSoko_Thinker::onUpdate(const ros::TimerEvent& event)
+void CSoko_Thinker::onUpdate(const ros::TimerEvent&)
 {
 	ros::spinOnce();
 	updateMap();
@@ -82,13 +83,17 @@ void CSoko_Thinker::onUpdate(const ros::TimerEvent& event)
 	}
 }
 
+void CSoko_Thinker::timerCallback(const ros::TimerEvent& e)
+{
+}
+
 void CSoko_Thinker::updateMap() {
 	//TODO NAVIGATION LOGIC
 }
 
 void CSoko_Thinker::update()
 {
-	map.drawAll(frame);
+//	map.drawAll(frame);
 }
 
 void CSoko_Thinker::mapCallback(const nav_msgs::OccupancyGrid& msg){
@@ -166,9 +171,6 @@ void CSoko_Thinker::callback(const sensor_msgs::LaserScan& msg)
 
 
 void CSoko_Thinker::odometryCallback(const nav_msgs::Odometry msg){
-
-
-
 	if(odom_state == 0){
 		odom_msg = msg;
 		odom_state = 1;
@@ -203,7 +205,85 @@ void CSoko_Thinker::odometryCallback(const nav_msgs::Odometry msg){
 
 	//save it
 	odom_msg = msg;
+}
 
+void CSoko_Thinker::loadMap(string mapName)
+{
+	string line;
+	int row = 0;
+	string mapFilePath = mapName + "_info.txt";
+	
+	string s = ros::package::getPath("csoko_thinker") + "/csoko_images/" + mapName;
+	QString images_path = QString::fromAscii(s.c_str(), s.length());
+	bg.load(images_path);
+
+	s = ros::package::getPath("csoko_thinker") + "/csoko_images/" + "goal";
+	images_path = QString::fromAscii(s.c_str(), s.length());
+	this->goal.load(images_path);
+
+	
+	ifstream mapFile(mapFilePath.c_str());
+	if(mapFile.is_open())
+	{
+		while(getline(mapFile,line))
+		{
+			std::vector<CSokoTile> mapRow;
+			for(int i=0;i<line.length(); i++)
+			{
+				if(line[i] == '-')
+				{
+					mapRow.push_back(CSokoTile(i,row,false, false));
+				}
+				else if(line[i] == 'O')
+				{
+					mapRow.push_back(CSokoTile(i,row,true, false));
+				}
+				else if(line[i] == 'R')
+				{
+					CSokoTile tile = CSokoTile(i,row,false, false);
+					CSoko_Robot r(i,row);
+					tile.setObject(r);
+					mapRow.push_back(tile);
+				}
+				else if(line[i] == 'C')
+				{
+					CSokoTile tile = CSokoTile(i,row,false, false);
+					CSoko_Box b(i,row);
+					tile.setObject(b);
+					mapRow.push_back(tile);
+				}
+				else if(line[i] == 'P')
+				{
+					mapRow.push_back(CSokoTile(i,row,false, true));
+				}
+			}
+			grid.push_back(mapRow);
+			row++;
+		}
+		mapFile.close();
+	}
+	else {
+		cout << "Unable to find map file." << endl;
+	}
+}
+
+void CSoko_Thinker::drawAll(CSokoFrame frame)
+{
+	frame.draw(bg,QPointF(0,-bg.height()));
+	for(int i=0;i<grid.size();i++)
+	{
+		for(int j=0;j<grid[i].size();j++)
+		{
+			CSokoTile tile = grid[i][j];
+			if(tile.isGoal)
+			{
+				frame.draw(tile.object.icon,QPointF(j,goal.height()-i*16));		//TODO MAGIC NUMBER
+			}
+			
+			if(tile.hasObject)
+				frame.draw(tile.object.icon,QPointF(tile.object.drawX,bg.height()-tile.object.drawY));
+		}
+	}
 }
 
 }

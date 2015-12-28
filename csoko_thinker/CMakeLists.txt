@@ -54,7 +54,7 @@ include_directories(
 	${catkin_INCLUDE_DIRS}
 )
 
-add_executable(csoko_thinker src/csoko_thinker.cpp src/csoko_map.cpp src/csoko_frame.cpp)
+add_executable(csoko_thinker src/csoko_thinker.cpp src/csoko_frame.cpp src/csoko_object.cpp src/csoko_tile.cpp src/csoko_box.cpp src/csoko_robot.cpp)
 add_dependencies(csoko_thinker stdr_msgs_gencpp) # wait for stdr_msgs to be build
 
 target_link_libraries(csoko_thinker 

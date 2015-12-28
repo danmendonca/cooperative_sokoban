@@ -11,8 +11,6 @@
 
 #include <stdr_msgs/RobotIndexedVectorMsg.h>
 
-#include "csoko_thinker/csoko_map.h"
-
 #include <geometry_msgs/Pose2D.h>
 #include <geometry_msgs/Point.h>
 #include <geometry_msgs/Twist.h>

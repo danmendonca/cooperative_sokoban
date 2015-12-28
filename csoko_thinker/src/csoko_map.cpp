@@ -1,62 +1,14 @@
-#include "csoko_thinker/csoko_map.h"
+#include "csoko_thinker/csoko_thinker.h"
 
 #include <QPointF>
 
 namespace csoko_thinker{
-
-	/***************************************
-	*
-	*SokobanObject class
-	*
-	****************************************/
-	CSokoObject::CSokoObject(int x, int y)
-	{
-		this->x = x;
-		this->y = y;
-		drawX = x;
-		drawY = y;
-	}
-	
-	CSokoRobot::CSokoRobot(int x, int y) : CSokoObject(x,y)
-	{
-		string s = ros::package::getPath("csoko_thinker") + "/csoko_images/" + "robot";
-		QString images_path = QString::fromAscii(s.c_str(), s.length());
-		this->icon.load(images_path);
-	}
-	
-	CSokoBox::CSokoBox(int x, int y) : CSokoObject(x,y)
-	{
-		string s = ros::package::getPath("csoko_thinker") + "/csoko_images/" + "box";
-		QString images_path = QString::fromAscii(s.c_str(), s.length());
-		this->icon.load(images_path);
-	}
-	
-	/***************************************
-	*
-	*Tile class
-	*
-	****************************************/
-	CSokoTile::CSokoTile(int x, int y, bool isGoal, bool isSolid)
-	{
-		this->x = x;
-		this->y = y;
-		this->isGoal = isGoal;
-		this->isSolid = isSolid;
-		this->hasObject = false;
-	}
-	
-	void CSokoTile::setObject(CSokoObject object)
-	{
-		this->object = object;
-		this->hasObject = true;
-	}
-		
 	/***************************************
 	*
 	*Map class
 	*
 	****************************************/
-	CSokoMap::CSokoMap(string mapName)
+	CSoko_Map::CSoko_Map(string mapName)
 	{
 		string line;
 		int row = 0;
@@ -90,7 +42,7 @@ namespace csoko_thinker{
 					else if(line[i] == 'R')
 					{
 						CSokoTile tile = CSokoTile(i,row,false, false);
-						tile.setObject(CSokoRobot());
+						tile.setObject(CSoko_Robot());
 						mapRow.push_back(tile);
 					}
 					else if(line[i] == 'C')
@@ -114,7 +66,7 @@ namespace csoko_thinker{
 		}
 	}
 	
-	void CSokoMap::drawAll(CSokoFrame frame)
+	void CSoko_Map::drawAll(CSokoFrame frame)
 	{
 		frame.draw(bg,QPointF(0,-bg.height()));
 		for(int i=0;i<grid.size();i++)

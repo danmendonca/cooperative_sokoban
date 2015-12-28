@@ -1,13 +1,10 @@
-#ifndef CSOKO_MAP
-#define CSOKO_MAP
+#ifndef CSOKO_TILE
+#define CSOKO_TILE
 
 #include <QImage>
 
 #include "csoko_thinker/csoko_frame.h"
 #include "csoko_thinker/csoko_object.h"
-#include "csoko_thinker/csoko_tile.h"
-#include "csoko_thinker/csoko_box.h"
-#include "csoko_thinker/csoko_robot.h"
 
 #include <fstream>
 #include <iostream>
@@ -23,18 +20,20 @@
 #include <QTimer>
 #include <QVector>
 
+
 using namespace std;
 
 namespace csoko_thinker
 {
-	class CSokoMap
+	class CSokoTile
 	{
 		public:
-			string mapName;
-			QImage bg, goal;
-			vector<vector<CSokoTile> > grid;	
-			CSokoMap(string mapName);
-			void drawAll(CSokoFrame frame);
+			int x,y;
+			CSokoObject object;
+			bool hasObject, isGoal, isSolid;
+		
+			CSokoTile(int x, int y, bool isGoal, bool isSolid);
+			void setObject(CSokoObject object);
 	};
 }
 #endif

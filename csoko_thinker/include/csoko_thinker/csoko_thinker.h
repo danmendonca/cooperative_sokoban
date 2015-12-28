@@ -6,10 +6,21 @@
 #include <cstdlib>
 #include <cmath>
 
+#include <string>
+#include <vector>
+#include <cstdlib>
+#include <ctime>
+
 #include <ros/package.h>
 #include "ros/ros.h"
-#include "csoko_thinker/csoko_map.h"
+//#include "csoko_thinker/csoko_map.h"
 #include "csoko_thinker/csoko_frame.h"
+
+#include "csoko_thinker/csoko_frame.h"
+#include "csoko_thinker/csoko_object.h"
+#include "csoko_thinker/csoko_tile.h"
+#include "csoko_thinker/csoko_box.h"
+#include "csoko_thinker/csoko_robot.h"
 
 #include <stdr_msgs/RobotIndexedVectorMsg.h>
 
@@ -35,22 +46,16 @@
 #include <iostream>
 #include <fstream>
 
-
-
 namespace csoko_thinker
 {
-
 class CSoko_Thinker : QFrame
 {
 private:
-	CSokoFrame frame;
-	CSokoMap map;
-
-	QTimer* update_timer_;
-
 	void updateMap();
 	void update();
-	void onUpdate(const ros::TimerEvent& event);
+	void onUpdate(const ros::TimerEvent& e);
+
+
 
 	const static bool CSOKO_THINKER_DEBUG = true;
 	int odom_state;
@@ -119,6 +124,14 @@ public:
 
 	void odometryCallback(const nav_msgs::Odometry msg);
 
+	void timerCallback(const ros::TimerEvent& e);
+
+	CSokoFrame frame;
+	string mapName;
+	QImage bg, goal;
+	vector<vector<CSokoTile> > grid;	
+	void loadMap(string mapName);
+	void drawAll(CSokoFrame frame);
 };
 }
 
