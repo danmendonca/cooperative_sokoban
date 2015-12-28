@@ -41,25 +41,25 @@ namespace csoko_thinker{
 					std::vector<Tile> mapRow;
 					for(int i=0;i<line.length(); i++)
 					{
-						if(line[i] == '-')
+						if(line[i] == '-' || line[i] == ' ' )
 						{
 							mapRow.push_back(Tile(i,row,false, false));
 						}
-						else if(line[i] == 'O')
+						else if(line[i] == 'O' || line[i] == '.')
 						{
 							mapRow.push_back(Tile(i,row,true, false));
 						}
-						else if(line[i] == 'R')
+						else if(line[i] == 'R' || line[i] == '@')
 						{
 							//ADD ROBOT TO TILE
 							mapRow.push_back(Tile(i,row,false, false));
 						}
-						else if(line[i] == 'C')
+						else if(line[i] == 'C' || line[i] == '$')
 						{
 							//ADD BOX TO TILE
 							mapRow.push_back(Tile(i,row,false, false));
 						}
-						else if(line[i] == 'P')
+						else if(line[i] == 'P' || line[i] == '#')
 						{
 							mapRow.push_back(Tile(i,row,false, true));
 						}
