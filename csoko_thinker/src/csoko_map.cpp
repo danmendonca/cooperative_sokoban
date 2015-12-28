@@ -45,7 +45,7 @@ namespace csoko_thinker{
 		this->hasObject = false;
 	}
 	
-	CSokoTile::setObject(CSokoObject object)
+	void CSokoTile::setObject(CSokoObject object)
 	{
 		this->object = object;
 		this->hasObject = true;

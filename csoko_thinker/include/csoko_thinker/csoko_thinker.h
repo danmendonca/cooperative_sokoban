@@ -40,10 +40,8 @@
 namespace csoko_thinker
 {
 
-class CSoko_Thinker
+class CSoko_Thinker : QFrame
 {
-private slots:
-	void onUpdate();
 private:
 	CSokoFrame frame;
 	CSokoMap map;
@@ -52,6 +50,7 @@ private:
 
 	void updateMap();
 	void update();
+	void onUpdate(const ros::TimerEvent& event);
 
 	const static bool CSOKO_THINKER_DEBUG = true;
 	int odom_state;

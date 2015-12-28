@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <ctime>
 
+
 int main(int argc,char **argv)
 {
 	ros::init(argc, argv, "csoko_thinker_node", ros::init_options::AnonymousName);
@@ -20,6 +21,7 @@ namespace csoko_thinker{
 
 CSoko_Thinker::CSoko_Thinker(int argc,char **argv)
 {
+
 	odom_state = 0;
 	if(argc < 1)
 	{
@@ -30,11 +32,7 @@ CSoko_Thinker::CSoko_Thinker(int argc,char **argv)
 	frame.show();
 	
 	srand(time(NULL));
-	update_timer_ = new QTimer(frame);
-	update_timer_->setInterval(16);
-	update_timer_->start();
-	connect(update_timer_, SIGNAL(timeout()), this, SLOT(onUpdate()));
-	
+	ros::Timer timer = nh.createTimer(ros::Duration(0.1), onUpdate);
 	///TODO START LOGIC
 	
 	/*
@@ -73,13 +71,13 @@ CSoko_Thinker::~CSoko_Thinker(void)
 
 }
 
-void CSoko_Thinker::onUpdate()
+void CSoko_Thinker::onUpdate(const ros::TimerEvent& event)
 {
 	ros::spinOnce();
 	updateMap();
 	update();
 	if (!ros::ok())
-	{
+	{void onUpdate();
 		close();
 	}
 }
