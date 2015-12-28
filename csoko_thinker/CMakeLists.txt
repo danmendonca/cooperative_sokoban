@@ -54,7 +54,7 @@ include_directories(
 	${catkin_INCLUDE_DIRS}
 )
 
-add_executable(csoko_thinker src/csoko_thinker.cpp src/csoko_map.cpp)
+add_executable(csoko_thinker src/csoko_thinker.cpp src/csoko_map.cpp src/csoko_frame.cpp)
 add_dependencies(csoko_thinker stdr_msgs_gencpp) # wait for stdr_msgs to be build
 
 target_link_libraries(csoko_thinker 
@@ -68,6 +68,10 @@ target_link_libraries(csoko_thinker
 install(TARGETS csoko_thinker
 	RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
+
+install(DIRECTORY csoko_images
+DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+FILES_MATCHING PATTERN "*.png" PATTERN "*.svg")
 
 #############
 ## Testing ##

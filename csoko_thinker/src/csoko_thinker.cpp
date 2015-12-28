@@ -1,17 +1,42 @@
 #include "csoko_thinker/csoko_thinker.h"
 
+#include <QPointF>
+#include <cstdlib>
+#include <ctime>
+
 int main(int argc,char **argv)
 {
 	ros::init(argc, argv, "csoko_thinker_node", ros::init_options::AnonymousName);
+	
 	csoko_thinker::CSoko_Thinker obj(argc, argv);
 	ros::spin();
 	return 0;
 }
 
+/**
+ * Load map, create frame, start timer
+ */
 namespace csoko_thinker{
 
-CSoko_Thinker::CSoko_Thinker(int argc,char **argv) : odom_state(0)
+CSoko_Thinker::CSoko_Thinker(int argc,char **argv)
 {
+	odom_state = 0;
+	if(argc < 1)
+	{
+		cout << "Usage:" << endl;
+	}
+/*	string name(argv[1]);
+	map(name);*/
+	frame.show();
+	
+	srand(time(NULL));
+	update_timer_ = new QTimer(frame);
+	update_timer_->setInterval(16);
+	update_timer_->start();
+	connect(update_timer_, SIGNAL(timeout()), this, SLOT(onUpdate()));
+	
+	///TODO START LOGIC
+	
 	/*
     if(argc != 3)
     {
@@ -46,6 +71,26 @@ CSoko_Thinker::CSoko_Thinker(int argc,char **argv) : odom_state(0)
 CSoko_Thinker::~CSoko_Thinker(void)
 {
 
+}
+
+void CSoko_Thinker::onUpdate()
+{
+	ros::spinOnce();
+	updateMap();
+	update();
+	if (!ros::ok())
+	{
+		close();
+	}
+}
+
+void CSoko_Thinker::updateMap() {
+	//TODO NAVIGATION LOGIC
+}
+
+void CSoko_Thinker::update()
+{
+	map.drawAll(frame);
 }
 
 void CSoko_Thinker::mapCallback(const nav_msgs::OccupancyGrid& msg){
@@ -117,6 +162,7 @@ void CSoko_Thinker::callback(const sensor_msgs::LaserScan& msg)
 
 	cmd.linear.x = (odom_state < 3) ? 0.3 + linear : 0;
 	cmd.angular.z = (odom_state > 1) ? 0.0174532925 * 10 : rotational;
+
 	cmd_vel_pub.publish(cmd);
 }
 

@@ -8,6 +8,8 @@
 
 #include <ros/package.h>
 #include "ros/ros.h"
+#include "csoko_thinker/csoko_map.h"
+#include "csoko_thinker/csoko_frame.h"
 
 #include <stdr_msgs/RobotIndexedVectorMsg.h>
 
@@ -25,9 +27,14 @@
 #include <QPointF>
 #include <QColor>
 #include <QRgb>
+#include <QFrame>
+#include <QPaintEvent>
+#include <QTimer>
+#include <QVector>
 
 #include <iostream>
 #include <fstream>
+
 
 
 namespace csoko_thinker
@@ -35,7 +42,16 @@ namespace csoko_thinker
 
 class CSoko_Thinker
 {
+private slots:
+	void onUpdate();
 private:
+	CSokoFrame frame;
+	CSokoMap map;
+
+	QTimer* update_timer_;
+
+	void updateMap();
+	void update();
 
 	const static bool CSOKO_THINKER_DEBUG = true;
 	int odom_state;
