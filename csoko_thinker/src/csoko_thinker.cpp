@@ -1,10 +1,9 @@
 #include "csoko_thinker/csoko_thinker.h"
 
-#include <QPointF>
 #include <cstdlib>
 #include <ctime>
 
-#include <SFML/Graphics.hpp>
+
 
 
 //	<include file="$(find stdr_robot)/launch/robot_manager.launch" />
@@ -15,34 +14,16 @@
 
 using namespace csoko_thinker;
 
-class CSokoApp : public QApplication
-{
-	public:
-		ros::NodeHandlePtr nh_;
-		CSokoApp(int& argc, char** argv)
-			: QApplication(argc, argv)
-		{
-			ros::init(argc, argv, "csoko_thinker_node", ros::init_options::AnonymousName);
-			nh_.reset(new ros::NodeHandle);
-		}
-		int exec(int& argc, char** argv)
-		{
-			CSoko_Thinker obj(argc, argv);
-			obj.frame.show();
-			ros::spin();
-			ROS_ERROR("After declaration");
-			return QApplication::exec();
-		}
-};
-
 int main(int argc,char **argv)
 {
-    
-
-	CSokoApp app(argc, argv);
+	ros::init(argc, argv, "csoko_thinker_node", ros::init_options::AnonymousName);
+	CSoko_Thinker obj(argc, argv);
+	ros::spin();
 	ROS_ERROR("After app");
-	
-	app.exec(argc, argv);
+
+	while(true)
+	{}	
+	return 0;
 }
 
 /**
@@ -87,20 +68,6 @@ CSoko_Thinker::CSoko_Thinker(int argc,char **argv)
 	occ_grid_sub = nh.subscribe(occ_grid_topic.c_str(), 1, &CSoko_Thinker::mapCallback, this);
 
 	frame.signalUpdate(grid,objects);
-
-	while (window.isOpen())
-    {
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                frame.closeWindow();
-        }
-
-        window.clear();
-        window.draw(shape);
-        window.display();
-    }
 }
 
 
@@ -116,7 +83,6 @@ void CSoko_Thinker::onUpdate(const ros::TimerEvent&)
 	update();
 	if (!ros::ok())
 	{void onUpdate();
-		close();
 	}
 }
 

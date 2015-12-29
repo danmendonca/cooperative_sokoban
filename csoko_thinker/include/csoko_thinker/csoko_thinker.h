@@ -16,6 +16,8 @@
 //#include "csoko_thinker/csoko_map.h"
 #include "csoko_thinker/csoko_frame.h"
 
+#include <SFML/Graphics.hpp>
+
 #include "csoko_thinker/csoko_object.h"
 #include "csoko_thinker/csoko_tile.h"
 
@@ -29,24 +31,12 @@
 #include <sensor_msgs/LaserScan.h>
 #include <sensor_msgs/Range.h>
 
-#include <QImage>
-#include <QPainter>
-#include <QPen>
-#include <QPointF>
-#include <QColor>
-#include <QRgb>
-#include <QFrame>
-#include <QPaintEvent>
-#include <QApplication>
-#include <QTimer>
-#include <QVector>
-
 #include <iostream>
 #include <fstream>
 
 namespace csoko_thinker
 {
-class CSoko_Thinker : QFrame
+class CSoko_Thinker
 {
 private:
 	void updateMap();
@@ -126,7 +116,6 @@ public:
 
 	CSokoFrame frame;
 	string mapName;
-	QImage bg;
 	vector<vector<CSokoTile> > grid;	
 	void loadMap(string mapName);
 	void drawAll();

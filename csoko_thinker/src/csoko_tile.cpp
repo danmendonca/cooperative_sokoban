@@ -1,6 +1,5 @@
 #include "csoko_thinker/csoko_tile.h"
 
-#include <QPointF>
 namespace csoko_thinker{
 	CSokoTile::CSokoTile(int x, int y, bool isGoal, bool isSolid)
 	{

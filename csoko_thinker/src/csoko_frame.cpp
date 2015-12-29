@@ -1,110 +1,106 @@
 #include "csoko_thinker/csoko_frame.h"
 
-#include <QPointF>
 
 /**
  * Load map, create frame, start timer
  */
 namespace csoko_thinker{
 
-CSokoFrame::CSokoFrame() : QFrame(0, 0)
-, frame_count_(0)
+CSokoFrame::CSokoFrame()
 {
-	sf::RenderWindow window(sf::VideoMode(200, 200), "CSOKO");
+	ROS_ERROR("WINDOW CREATE");
+	window.create(sf::VideoMode( 500, 500 ), "CSOKO");
+	ROS_ERROR("BEFORE FRAME LOAD");
+	//LOAD GOAL
+	string goalPath = "/home/viki/catkin_ws/src/cooperative_sokoban/csoko_images/goal.png";
+	if (!goal.loadFromFile(goalPath))
+	{
+	    // error...
+	}
+	goalSprite.setTexture(goal);
+	//LOAD BOX
+	string boxPath = "/home/viki/catkin_ws/src/cooperative_sokoban/csoko_images/box.png";
+	if (!boxIcon.loadFromFile(boxPath))
+	{
+	    // error...
+	}
+	//LOAD ROBOT
+	string robotPath = "/home/viki/catkin_ws/src/cooperative_sokoban/csoko_images/robot.png";
+	if (!robotIcon.loadFromFile(robotPath))
+	{
+	    // error...
+	}
 
-	srand(time(NULL));
-	update_timer_ = new QTimer(this);
-	update_timer_->setInterval(16);
-	update_timer_->start();
-	connect(update_timer_, SIGNAL(timeout()), this, SLOT(&CSokoFrame::onUpdate()));
-
-	string goalPath = "/home/viki/catkin_ws/src/cooperative_sokoban/csoko_images/goal";
-	QString images_path = QString::fromAscii(goalPath.c_str(), goalPath.length());
-	this->goal.load(images_path);
 	ROS_ERROR("FRAME IS LOADED");
-	update();
-}
-
-CSokoFrame::CSokoFrame(QWidget * parent) : QFrame(0, 0)
-, frame_count_(0)
-{
-}
-
-void CSokoFrame::clear()
-{
 }
 
 void CSokoFrame::closeWindow()
 {
-	window.close();
+	//window.close();
 }
 
 void CSokoFrame::loadMap(string mapName)
 {
-	string bgPath = "/home/viki/catkin_ws/src/cooperative_sokoban/csoko_resources/maps/"+mapName;
-	QString images_path = QString::fromAscii(bgPath.c_str(), bgPath.length());
-	this->bg.load(images_path);
-
-	if(bg.isNull())
-		ROS_ERROR("FUCK");
-	else
-		ROS_ERROR("COOL");
-
-	update();
-}
-
-
-void CSokoFrame::onUpdate()
-{
-	ROS_ERROR("ONUPDTAE CALL");
-}
-
-void CSokoFrame::paintEvent(QPaintEvent*e)
-{
-	QPainter painter(this);
-
-	//Draw Background
-	if(!bg.isNull())
-		painter.drawImage(QPointF(0,0),bg);
-
-	//Draw Goal
-	for(int i=0;i<grid.size();i++)
+	string bgPath = "/home/viki/catkin_ws/src/cooperative_sokoban/csoko_resources/maps/"+mapName+".png";
+	if (!bg.loadFromFile(bgPath))
 	{
-		for(int j=0;j<grid[i].size();j++)
-		{
-			CSokoTile tile = grid[i][j];
-			if(tile.isGoal)
-			{
-				if(!goal.isNull())
-					painter.drawImage(QPointF(j*16,i*16),goal);
-			}
-		}
+	    // error...
 	}
-
-	//Draw Robots and Boxes
-	for(int j=0;j<objects.size();j++)
-	{
-		painter.drawImage(QPointF(objects[j].drawX*16,objects[j].drawY*16),objects[j].icon);
-	}
+	bgSprite.setTexture(bg);
+	bgSprite.setPosition(sf::Vector2f(0, 0));
+	window.setSize(bg.getSize());
 }
 
 void CSokoFrame::signalUpdate(vector<vector<CSokoTile> > grid, vector<CSokoObject> objects)
 {
 	this->grid = grid;
 	this->objects = objects;
-	update();
+	draw();
 }
 
-void CSokoFrame::draw(QImage img, QPointF pos)
+void CSokoFrame::draw()
 {
-	ROS_ERROR("ASDFGHJHHGGFDS");
-//	viewport()->update();
-	//QPainter painter(0);
-//	QPainter painter(this);
-//	painter.begin( this );
-//	QPointF p = pos* img.height();
-//	painter.drawImage(p,img);
-//	painter.end( );
+	if(window.isOpen())
+	{
+        window.clear();
+		//Draw Background
+		if(bg.getSize().x != 0)
+		{
+			window.draw(bgSprite);
+		}
+
+		//Draw Goal
+		for(int i=0;i<grid.size();i++)
+		{
+			for(int j=0;j<grid[i].size();j++)
+			{
+				CSokoTile tile = grid[i][j];
+				if(tile.isGoal)
+				{
+					if(goal.getSize().x != 0)
+					{
+						goalSprite.setPosition(sf::Vector2f(j*16, i*16));
+						window.draw(goalSprite);
+					}
+				}
+			}
+		}
+		sf::Sprite dynSprite;
+		//Draw Robots and Boxes
+		for(int j=0;j<objects.size();j++)
+		{
+			if(boxIcon.getSize().x != 0 & robotIcon.getSize().x != 0)
+			{
+				if(objects[j].isBox)
+					dynSprite.setTexture(boxIcon);
+				else
+					dynSprite.setTexture(robotIcon);
+				dynSprite.setPosition(sf::Vector2f(objects[j].drawX*16, objects[j].drawY*16));
+				window.draw(dynSprite);
+			}
+		}
+        window.display();
+	}
 }
 
 }

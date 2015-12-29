@@ -7,7 +7,6 @@
 #include <cmath>
 
 #include <ros/package.h>
-#ifndef Q_MOC_RUN // See: https://bugreports.qt-project.org/browse/QTBUG-22829
 #include <ros/ros.h>
 
 #include "csoko_thinker/csoko_object.h"
@@ -23,54 +22,40 @@
 #include <sensor_msgs/LaserScan.h>
 #include <sensor_msgs/Range.h>
 
-#include <QFrame>
-#include <QWidget>
-#include <QImage>
-#include <QPainter>
-#include <QPen>
-#include <QPointF>
-#include <QColor>
-#include <QRgb>
-#include <QTimer>
-#include <QPaintEvent>
+#include <SFML/Graphics.hpp>
 
 #include <map>
 
 #include <iostream>
+#include <memory>
 #include <fstream>
 
 using namespace std;
 
 namespace csoko_thinker
 {
-class CSokoFrame : public QFrame
-{
-	public:
-		CSokoFrame();
-		CSokoFrame(QWidget * parent);
-		virtual ~CSokoFrame() {};
+	class CSokoFrame
+	{
+		public:
+			CSokoFrame();
 
-		void draw(QImage img, QPointF pos);
-		void paintEvent(QPaintEvent * e);
-		void signalUpdate(vector<vector<CSokoTile> > grid, vector<CSokoObject> objects);
-		void loadMap(string mapName);
+			void signalUpdate(vector<vector<CSokoTile> > grid, vector<CSokoObject> objects);
+			void draw();
 
-		void closeWindow();
-	protected:
-	private slots:
-		void onUpdate();
-	private:
-		void clear();
-		uint64_t frame_count_;
-		QTimer* update_timer_;
-		QImage bg;
-		QImage curImg;
-		QPointF curPos;
+			void loadMap(string mapName);
 
-		vector<CSokoObject> objects;
-		vector<vector<CSokoTile> > grid;
-		QImage goal;
-};
+			void closeWindow();
+		private:
+			sf::Sprite bgSprite;
+			sf::Texture bg;
+			sf::Texture robotIcon;
+			sf::Texture boxIcon;
+			sf::RenderWindow window;
+
+			vector<CSokoObject> objects;
+			vector<vector<CSokoTile> > grid;
+			sf::Sprite goalSprite;
+			sf::Texture goal;
+	};
 }
-#endif
 #endif

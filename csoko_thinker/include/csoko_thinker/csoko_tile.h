@@ -1,7 +1,7 @@
 #ifndef CSOKO_TILE
 #define CSOKO_TILE
 
-#include <QImage>
+
 
 #include <fstream>
 #include <iostream>
@@ -10,13 +10,6 @@
 
 #include <cstdlib>
 #include <ctime>
-
-#include <QFrame>
-#include <QPainter>
-#include <QPaintEvent>
-#include <QTimer>
-#include <QVector>
-
 
 using namespace std;
 namespace csoko_thinker{

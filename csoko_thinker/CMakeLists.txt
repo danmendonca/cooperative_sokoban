@@ -11,9 +11,6 @@ find_package(catkin REQUIRED COMPONENTS
  )
 
 
-find_package(Qt4 4.6 REQUIRED COMPONENTS QtCore QtGui)
-include(${QT_USE_FILE})
-
 ################################################
 ## Declare ROS messages, services and actions ##
 ################################################
@@ -42,7 +39,6 @@ catkin_package(
     	nav_msgs
 )
 
-qt4_wrap_cpp(turtlesim_node_MOCS ${turtlesim_node_HDRS})
 
 ###########
 ## Build ##
@@ -59,7 +55,7 @@ add_executable(csoko_thinker src/csoko_thinker.cpp src/csoko_frame.cpp src/csoko
 add_dependencies(csoko_thinker stdr_msgs_gencpp) # wait for stdr_msgs to be build
 
 target_link_libraries(csoko_thinker 
-	${catkin_LIBRARIES} ${QT_LIBRARIES} sfml-graphics sfml-window sfml-system
+	${catkin_LIBRARIES} sfml-graphics sfml-window sfml-system
 )
 
 #############
