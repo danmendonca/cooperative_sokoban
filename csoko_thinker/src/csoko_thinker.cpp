@@ -4,15 +4,45 @@
 #include <cstdlib>
 #include <ctime>
 
+#include <SFML/Graphics.hpp>
+
+
+//	<include file="$(find stdr_robot)/launch/robot_manager.launch" />
+
+//<node type="stdr_server_node" pkg="stdr_server" name="stdr_server" output="screen" args="$(find csoko_resources)/map/sokobanMap1.yaml"/>
+//<node pkg="tf" type="static_transform_publisher" name="world2map" args="0 0 0 0 0 0  world map 100" />
+//<include file="$(find stdr_gui)/launch/stdr_gui.launch"/>
+
 using namespace csoko_thinker;
+
+class CSokoApp : public QApplication
+{
+	public:
+		ros::NodeHandlePtr nh_;
+		CSokoApp(int& argc, char** argv)
+			: QApplication(argc, argv)
+		{
+			ros::init(argc, argv, "csoko_thinker_node", ros::init_options::AnonymousName);
+			nh_.reset(new ros::NodeHandle);
+		}
+		int exec(int& argc, char** argv)
+		{
+			CSoko_Thinker obj(argc, argv);
+			obj.frame.show();
+			ros::spin();
+			ROS_ERROR("After declaration");
+			return QApplication::exec();
+		}
+};
 
 int main(int argc,char **argv)
 {
-	ros::init(argc, argv, "csoko_thinker_node", ros::init_options::AnonymousName);
+    
+
+	CSokoApp app(argc, argv);
+	ROS_ERROR("After app");
 	
-	CSoko_Thinker obj(argc, argv);
-	ros::spin();
-	return 0;
+	app.exec(argc, argv);
 }
 
 /**
@@ -22,15 +52,10 @@ namespace csoko_thinker{
 
 CSoko_Thinker::CSoko_Thinker(int argc,char **argv)
 {
-
 	odom_state = 0;
-	if(argc < 1)
-	{
-		cout << "Usage:" << endl;
-	}
-/*	string name(argv[1]);
-	map(name);*/
-	frame.show();
+	string name(argv[1]);
+	ROS_ERROR("MAP NAME: %s\n", name.c_str());
+	loadMap(name);
 
 //	ros::Timer timer = nh.createTimer(ros::Duration(0.1), onUpdate);
 	ros::Timer timer = nh.createTimer(ros::Duration(0.1), &CSoko_Thinker::timerCallback,this);
@@ -61,9 +86,21 @@ CSoko_Thinker::CSoko_Thinker(int argc,char **argv)
 	occ_grid_topic = "map";
 	occ_grid_sub = nh.subscribe(occ_grid_topic.c_str(), 1, &CSoko_Thinker::mapCallback, this);
 
+	frame.signalUpdate(grid,objects);
 
+	while (window.isOpen())
+    {
+        sf::Event event;
+        while (window.pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed)
+                frame.closeWindow();
+        }
 
-
+        window.clear();
+        window.draw(shape);
+        window.display();
+    }
 }
 
 
@@ -85,6 +122,8 @@ void CSoko_Thinker::onUpdate(const ros::TimerEvent&)
 
 void CSoko_Thinker::timerCallback(const ros::TimerEvent& e)
 {
+	ROS_ERROR("CALLBACK");
+	ROS_INFO("Timer callback!");
 }
 
 void CSoko_Thinker::updateMap() {
@@ -211,16 +250,8 @@ void CSoko_Thinker::loadMap(string mapName)
 {
 	string line;
 	int row = 0;
-	string mapFilePath = mapName + "_info.txt";
-	
-//	string s = ros::package::getPath("csoko_thinker") + "/csoko_images/" + mapName;
-//	QString images_path = QString::fromAscii(s.c_str(), s.length());
-	//bg.load(images_path);
-
-	//s = ros::package::getPath("csoko_thinker") + "/csoko_images/" + "goal";
-	//images_path = QString::fromAscii(s.c_str(), s.length());
-	//this->goal.load(images_path);
-
+	string mapFilePath = "/home/viki/catkin_ws/src/cooperative_sokoban/" + mapName;
+	frame.loadMap(mapName);
 	
 	ifstream mapFile(mapFilePath.c_str());
 	if(mapFile.is_open())
@@ -234,9 +265,9 @@ void CSoko_Thinker::loadMap(string mapName)
 				{
 					mapRow.push_back(CSokoTile(i,row,false, false));
 				}
-				else if(line[i] == 'O')
+				else if(line[i] == 'P')
 				{
-					mapRow.push_back(CSokoTile(i,row,true, false));
+					mapRow.push_back(CSokoTile(i,row,false, true));
 				}
 				else if(line[i] == 'R')
 				{
@@ -269,24 +300,9 @@ void CSoko_Thinker::loadMap(string mapName)
 	}
 }
 
-void CSoko_Thinker::drawAll(CSokoFrame frame)
+void CSoko_Thinker::drawAll()
 {
-	frame.draw(bg,QPointF(0,-bg.height()));
-	for(int i=0;i<grid.size();i++)
-	{
-		for(int j=0;j<grid[i].size();j++)
-		{
-			CSokoTile tile = grid[i][j];
-			if(tile.isGoal)
-			{
-				frame.draw(goal,QPointF(j,goal.height()-i*16));		//TODO MAGIC NUMBER
-			}
-		}
-	}
-	for(int j=0;j<objects.size();j++)
-	{
-		frame.draw(objects[j].icon,QPointF(objects[j].drawX,bg.height()-objects[j].drawY));		
-	}
+	
 }
 
 

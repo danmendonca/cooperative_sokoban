@@ -26,6 +26,7 @@ namespace csoko_thinker{
 	class CSokoObject
 	{
 	public:
+		sf::Texture icon;
 		QImage icon;
 		int x,y;
 		double drawX, drawY;

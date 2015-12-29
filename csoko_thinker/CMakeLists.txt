@@ -31,7 +31,8 @@ include(${QT_USE_FILE})
 catkin_package(
 	INCLUDE_DIRS 
     	include
-  	LIBRARIES 
+  	LIBRARIES
+		sfml 
   	CATKIN_DEPENDS
     	roscpp
     	tf
@@ -58,7 +59,7 @@ add_executable(csoko_thinker src/csoko_thinker.cpp src/csoko_frame.cpp src/csoko
 add_dependencies(csoko_thinker stdr_msgs_gencpp) # wait for stdr_msgs to be build
 
 target_link_libraries(csoko_thinker 
-	${catkin_LIBRARIES} ${QT_LIBRARIES}
+	${catkin_LIBRARIES} ${QT_LIBRARIES} sfml-graphics sfml-window sfml-system
 )
 
 #############

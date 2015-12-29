@@ -37,6 +37,7 @@
 #include <QRgb>
 #include <QFrame>
 #include <QPaintEvent>
+#include <QApplication>
 #include <QTimer>
 #include <QVector>
 
@@ -110,7 +111,7 @@ private:
 
 
 public:
-
+	CSoko_Thinker();
 	CSoko_Thinker(int argc,char **argv);
 
 	~CSoko_Thinker(void);
@@ -125,10 +126,10 @@ public:
 
 	CSokoFrame frame;
 	string mapName;
-	QImage bg, goal;
+	QImage bg;
 	vector<vector<CSokoTile> > grid;	
 	void loadMap(string mapName);
-	void drawAll(CSokoFrame frame);
+	void drawAll();
 };
 }
 
