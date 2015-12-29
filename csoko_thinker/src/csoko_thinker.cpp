@@ -213,13 +213,13 @@ void CSoko_Thinker::loadMap(string mapName)
 	int row = 0;
 	string mapFilePath = mapName + "_info.txt";
 	
-	string s = ros::package::getPath("csoko_thinker") + "/csoko_images/" + mapName;
-	QString images_path = QString::fromAscii(s.c_str(), s.length());
-	bg.load(images_path);
+//	string s = ros::package::getPath("csoko_thinker") + "/csoko_images/" + mapName;
+//	QString images_path = QString::fromAscii(s.c_str(), s.length());
+	//bg.load(images_path);
 
-	s = ros::package::getPath("csoko_thinker") + "/csoko_images/" + "goal";
-	images_path = QString::fromAscii(s.c_str(), s.length());
-	this->goal.load(images_path);
+	//s = ros::package::getPath("csoko_thinker") + "/csoko_images/" + "goal";
+	//images_path = QString::fromAscii(s.c_str(), s.length());
+	//this->goal.load(images_path);
 
 	
 	ifstream mapFile(mapFilePath.c_str());
@@ -241,15 +241,17 @@ void CSoko_Thinker::loadMap(string mapName)
 				else if(line[i] == 'R')
 				{
 					CSokoTile tile = CSokoTile(i,row,false, false);
-					CSoko_Robot r(i,row);
-					tile.setObject(r);
+					CSokoObject r(i,row,false);
+					objects.push_back(r);
+					tile.setObject();
 					mapRow.push_back(tile);
 				}
 				else if(line[i] == 'C')
 				{
 					CSokoTile tile = CSokoTile(i,row,false, false);
-					CSoko_Box b(i,row);
-					tile.setObject(b);
+					CSokoObject b(i,row,true);
+					objects.push_back(b);
+					tile.setObject();
 					mapRow.push_back(tile);
 				}
 				else if(line[i] == 'P')
@@ -277,13 +279,15 @@ void CSoko_Thinker::drawAll(CSokoFrame frame)
 			CSokoTile tile = grid[i][j];
 			if(tile.isGoal)
 			{
-				frame.draw(tile.object.icon,QPointF(j,goal.height()-i*16));		//TODO MAGIC NUMBER
+				frame.draw(goal,QPointF(j,goal.height()-i*16));		//TODO MAGIC NUMBER
 			}
-			
-			if(tile.hasObject)
-				frame.draw(tile.object.icon,QPointF(tile.object.drawX,bg.height()-tile.object.drawY));
 		}
 	}
+	for(int j=0;j<objects.size();j++)
+	{
+		frame.draw(objects[j].icon,QPointF(objects[j].drawX,bg.height()-objects[j].drawY));		
+	}
 }
+
 
 }

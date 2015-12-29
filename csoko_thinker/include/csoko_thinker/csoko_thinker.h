@@ -16,11 +16,8 @@
 //#include "csoko_thinker/csoko_map.h"
 #include "csoko_thinker/csoko_frame.h"
 
-#include "csoko_thinker/csoko_frame.h"
 #include "csoko_thinker/csoko_object.h"
 #include "csoko_thinker/csoko_tile.h"
-#include "csoko_thinker/csoko_box.h"
-#include "csoko_thinker/csoko_robot.h"
 
 #include <stdr_msgs/RobotIndexedVectorMsg.h>
 
@@ -55,7 +52,7 @@ private:
 	void update();
 	void onUpdate(const ros::TimerEvent& e);
 
-
+	vector<CSokoObject> objects;
 
 	const static bool CSOKO_THINKER_DEBUG = true;
 	int odom_state;
