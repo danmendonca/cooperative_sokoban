@@ -3,6 +3,9 @@
 
 #include <QImage>
 
+#include "ros/ros.h"
+#include <ros/package.h>
+
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -17,19 +20,18 @@
 #include <QTimer>
 #include <QVector>
 
-
 using namespace std;
 
-namespace csoko_thinker
-{
+namespace csoko_thinker{
 	class CSokoObject
 	{
 	public:
 		QImage icon;
 		int x,y;
 		double drawX, drawY;
+		bool isBox;
 
-		CSokoObject(int x, int y);
+		CSokoObject(int x, int y, bool isBox);
 	};
 }
 #endif

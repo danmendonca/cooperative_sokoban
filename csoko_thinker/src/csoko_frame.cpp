@@ -7,14 +7,31 @@
  */
 namespace csoko_thinker{
 
-CSokoFrame::CSokoFrame(QWidget* parent, Qt::WindowFlags f) : QFrame(parent, f)
+CSokoFrame::CSokoFrame() : QFrame(0, 0)
 , frame_count_(0)
 {
 	
 }
 
+CSokoFrame::CSokoFrame(QWidget * parent) : QFrame(0, 0)
+, frame_count_(0)
+{
+	
+}
+
+void CSokoFrame::clear()
+{
+}
+
+void CSokoFrame::paintEvent(QPaintEvent*e)
+{
+}
+
 void CSokoFrame::draw(QImage img, QPointF pos)
+{
 	QPainter painter(this);
 	QPointF p = pos* img.height();
 	painter.drawImage(p,img);
+}
+
 }

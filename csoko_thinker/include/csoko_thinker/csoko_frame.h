@@ -39,11 +39,18 @@ namespace csoko_thinker
 
 class CSokoFrame : public QFrame
 {
-	Q_OBJECT
+
 	public:
-		CSokoFrame(QWidget* parent = 0, Qt::WindowFlags f = 0);
-		uint64_t frame_count_;
+		CSokoFrame();
+		CSokoFrame(QWidget * parent);
+		virtual ~CSokoFrame() {};
+
 		void draw(QImage img, QPointF pos);
+		void paintEvent(QPaintEvent * e);
+	protected:
+	private:
+		void clear();
+		uint64_t frame_count_;
 };
 }
 #endif
