@@ -1,4 +1,5 @@
 #include "csoko_thinker/csoko_thinker.h"
+#include "csoko_thinker/csoko_solver.h"
 
 #include <cstdlib>
 #include <ctime>
@@ -13,6 +14,7 @@
 //<include file="$(find stdr_gui)/launch/stdr_gui.launch"/>
 
 using namespace csoko_thinker;
+using namespace std;
 
 int main(int argc,char **argv)
 {

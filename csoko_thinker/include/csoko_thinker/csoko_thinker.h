@@ -1,28 +1,20 @@
-#ifndef CSOKO_THINKER
-#define CSOKO_THINKER
+#ifndef CSOKO_THINKER__H
+#define CSOKO_THINKER__H
 
 
 #include <iostream>
+#include <fstream>
 #include <cstdlib>
 #include <cmath>
-
 #include <string>
 #include <vector>
 #include <cstdlib>
 #include <ctime>
-
-#include <ros/package.h>
-#include "ros/ros.h"
-//#include "csoko_thinker/csoko_map.h"
-#include "csoko_thinker/csoko_frame.h"
-
 #include <SFML/Graphics.hpp>
 
-#include "csoko_thinker/csoko_object.h"
-#include "csoko_thinker/csoko_tile.h"
 
+#include <ros/package.h>
 #include <stdr_msgs/RobotIndexedVectorMsg.h>
-
 #include <geometry_msgs/Pose2D.h>
 #include <geometry_msgs/Point.h>
 #include <geometry_msgs/Twist.h>
@@ -30,10 +22,10 @@
 #include <nav_msgs/OccupancyGrid.h>
 #include <sensor_msgs/LaserScan.h>
 #include <sensor_msgs/Range.h>
-
-#include <iostream>
-#include <fstream>
-
+#include "ros/ros.h"
+#include "csoko_thinker/csoko_frame.h"
+#include "csoko_thinker/csoko_object.h"
+#include "csoko_thinker/csoko_tile.h"
 namespace csoko_thinker
 {
 class CSoko_Thinker
@@ -43,9 +35,12 @@ private:
 	void update();
 	void onUpdate(const ros::TimerEvent& e);
 
-	vector<CSokoObject> objects;
 
-	const static bool CSOKO_THINKER_DEBUG = true;
+	std::vector<CSokoObject> objects;
+	std::vector<std::tuple<size_t, std::string> > moves;
+	std::vector<std::tuple<size_t, size_t> > robots_pos, boxes_pos, delivery_pos;
+
+	const static bool CSOKO_THINKER_DEBUG = false;
 	int odom_state;
 	int8_t **my_map;
 	int map_height, map_width;
@@ -115,9 +110,9 @@ public:
 	void timerCallback(const ros::TimerEvent& e);
 
 	CSokoFrame frame;
-	string mapName;
-	vector<vector<CSokoTile> > grid;	
-	void loadMap(string mapName);
+	std::string mapName;
+	std::vector<std::vector<CSokoTile> > grid;
+	void loadMap(std::string mapName);
 	void drawAll();
 };
 }

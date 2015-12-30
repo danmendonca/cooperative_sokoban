@@ -11,7 +11,6 @@
 #include <cstdlib>
 #include <ctime>
 
-using namespace std;
 namespace csoko_thinker{
 	class CSokoTile
 	{

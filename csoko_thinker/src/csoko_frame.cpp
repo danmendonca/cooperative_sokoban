@@ -1,5 +1,6 @@
 #include "csoko_thinker/csoko_frame.h"
 
+using namespace std;
 
 /**
  * Load map, create frame, start timer

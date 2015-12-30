@@ -30,7 +30,7 @@
 #include <memory>
 #include <fstream>
 
-using namespace std;
+//using namespace std;
 
 namespace csoko_thinker
 {
@@ -39,10 +39,10 @@ namespace csoko_thinker
 		public:
 			CSokoFrame();
 
-			void signalUpdate(vector<vector<CSokoTile> > grid, vector<CSokoObject> objects);
+			void signalUpdate(std::vector<std::vector<CSokoTile> > grid, std::vector<CSokoObject> objects);
 			void draw();
 
-			void loadMap(string mapName);
+			void loadMap(std::string mapName);
 
 			void closeWindow();
 
@@ -58,8 +58,8 @@ namespace csoko_thinker
 			sf::Texture boxIcon;
 			sf::RenderWindow window;
 
-			vector<CSokoObject> objects;
-			vector<vector<CSokoTile> > grid;
+			std::vector<CSokoObject> objects;
+			std::vector<std::vector<CSokoTile> > grid;
 			sf::Sprite goalSprite;
 			sf::Texture goal;
 	};
