@@ -21,7 +21,6 @@ int main(int argc,char **argv)
 	CSokoFrame::setPathToResources(res_path);
 	CSoko_Thinker obj(argc, argv);
 	ros::spin();
-	ROS_ERROR("After app");
 
 	while(true)
 	{}	
@@ -226,7 +225,7 @@ void CSoko_Thinker::loadMap(string mapName)
 	int row = 0;
 	string mapFilePath = mapName;
 	frame.loadMap(mapName);
-	
+
 	ifstream mapFile(mapFilePath.c_str());
 	if(mapFile.is_open())
 	{
@@ -258,10 +257,6 @@ void CSoko_Thinker::loadMap(string mapName)
 					objects.push_back(b);
 					tile.setObject();
 					mapRow.push_back(tile);
-				}
-				else if(line[i] == 'P')
-				{
-					mapRow.push_back(CSokoTile(i,row,false, true));
 				}
 			}
 			grid.push_back(mapRow);

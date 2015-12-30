@@ -23,20 +23,20 @@ CSokoFrame::CSokoFrame()
 	string goalPath = path_to_res +"/images/goal.png";
 	if (!goal.loadFromFile(goalPath))
 	{
-	    // error...
+		ROS_ERROR("COULD NOT LOAD MAP GRAPHICS");
 	}
 	goalSprite.setTexture(goal);
 	//LOAD BOX
 	string boxPath = path_to_res +"/images/box.png";
 	if (!boxIcon.loadFromFile(boxPath))
 	{
-	    // error...
+		ROS_ERROR("COULD NOT LOAD BOX GRAPHICS");
 	}
 	//LOAD ROBOT
 	string robotPath = path_to_res +"/images/robot.png";
 	if (!robotIcon.loadFromFile(robotPath))
 	{
-	    // error...
+		ROS_ERROR("COULD NOT LOAD ROBOT GRAPHICS");
 	}
 
 	ROS_ERROR("FRAME IS LOADED");
@@ -50,7 +50,7 @@ void CSokoFrame::closeWindow()
 void CSokoFrame::loadMap(string mapName)
 {
 	string bgPath = mapName;
-	if (!bg.loadFromFile(bgPath))
+	if (!bg.loadFromFile(bgPath+".png"))
 	{
 	    // error...
 	}
