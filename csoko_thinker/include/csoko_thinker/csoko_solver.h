@@ -1,99 +1,148 @@
-#ifndef CSOKO_SOLVER
-#define CSOKO_SOLVER
+/*
+ * yo_shit.cpp
+ *
+ *  Created on: Dec 28, 2015
+ *      Author: dmendonca
+ */
 
-
-
-#include <cstdio>
 #include <fstream>
-#include <vector>
-#include <cmath>
-#include <map>
+#include <iostream>
 #include <string>
-#include <string.h>
-#include <algorithm>
-#include <iterator>
+#include <vector>
 #include <queue>
-#include <stack>
-#include <ctime>
+#include <tuple>
+#include <array>
+#include <map>
+#include <boost/algorithm/string.hpp>
+#include <boost/unordered_set.hpp>
+
+typedef std::vector<char> TableRow;
+typedef std::vector<TableRow> Table;
+typedef std::tuple<size_t, size_t> T_pos;
+typedef std::vector<T_pos> Vec_t_pos;
+
+struct Board {
+	Table sData, dData;
+	int px, py;
 
 
-namespace csoko_thinker{
+	bool setRobot(size_t xx, size_t yy);
+	void setMap(Table t, bool toSetRobot=false);
+	void setRobotAndMap(int xx, int yy, Table t);
 
+	Board(int xx, int yy, Table t);
+	Board(std::string b);
 
-char mapa[32][32],bmapa[32][32];
-short nummapa[32][32],amp[32][32],dirxy[1024][2];
-
-std::ifstream in;
-std::vector<short> boxes,box_dest; std::vector<short>::iterator ite;
-std::map<std::vector<short>,bool> ClosedList;
-short sokop,Nbox=0,pcont=1,maxx=0,maxy=0;;
-short moves[4][2] = { {-1,0},{0,1},{1,0},{0,-1} };
-std::vector<path_node> path;
-
-
-
-/***************************************
- *
- *node class
- *
- ****************************************/
-class node {
-public:
-	node( short ccost, short ch, int cnp, short cpb, std::vector<short>& cbox ) {
-		cost=ccost; h= ch; npath=cnp; config=cbox; placedbox=cpb;
-	};
-	short cost,h,placedbox;
-	int npath;
-	std::vector<short> config;
+	bool move(int x, int y, int dx, int dy, Table &data);
+	bool push(int x, int y, int dx, int dy, Table &data);
+	bool isSolved(const Table &data);
+	std::string solve();
 };
-
-
-
-
-/***************************************
- *
- *path_node class
- *
- ****************************************/
-class path_node {
-public:
-	path_node(int cxy, short cdir, int cb) {
-		xy=cxy; dir=cdir; back=cb;
-	};
-	int xy;
-	short dir;
-	int back;
-};
-
 
 
 /**
  *
  */
-bool operator < (const node &a, const node &b) {
-	if(a.placedbox==b.placedbox) return a.h+a.cost>b.h+b.cost;
-	return a.placedbox<b.placedbox;
-};
+void printBoard(const Table &t);
 
 
+/**
+ *Sets all robots, boxes and delivery points as walls
+ */
+void allAsWalls(Table &t, const Vec_t_pos &rs, const Vec_t_pos &bs, const Vec_t_pos &ds);
 
 
-/***************************************
+/**
  *
- *point_sort class
+ */
+void allAsBefore(Table &t, const Vec_t_pos &rs, const Vec_t_pos &bs, const Vec_t_pos &ds);
+
+
+/**
+ *Set a robot position, a box and a location to where the box should be taken in a Table
+ *@t table to add the elements
+ *@r robot position in the table
+ *@b box position in the table
+ *@d destiny position in the table where the box should be taken
+ */
+void setInterests(Table &t, const T_pos &r, const T_pos &b, const T_pos &d);
+
+
+/**
+ *Sets a box and a delivery point in a Table as walls
+ */
+void negateInterest(Table &t, const T_pos &b, const T_pos &d);
+
+
+/**
  *
- ****************************************/
-class point_sort {
-public:
-	bool operator () (const short& a, const short& b) {
-		short da=dirxy[a][0]+dirxy[a][1], db=dirxy[b][0]+dirxy[b][1];
-		if(da==db) {
-			if(dirxy[a][0]==dirxy[b][0]) return dirxy[a][1]<dirxy[b][1];
-			return dirxy[a][0]<dirxy[b][0];
+ */
+void performMove(Table &t, T_pos &r, T_pos &b, const std::string &sol, bool isPrint=false);
+
+/**
+ *
+ */
+bool turn(const Table t, const Vec_t_pos rs, const Vec_t_pos bs, const Vec_t_pos ds, std::vector<std::vector<std::string> > &moves, size_t robot_nr);
+
+
+/**
+ *
+ */
+void dynamicSolPrint(Table t);
+
+
+/**
+ *
+ *
+int main() {
+	Table t;
+	ifstream ifs("sokobanMap1");
+	vector<T_pos > rs; //robots
+	vector<T_pos > bs; //boxes
+	vector<T_pos > ds; //destinys
+
+	if(ifs.is_open())
+	{
+		string line;
+		while(getline(ifs, line))
+		{
+			TableRow row;
+			for(auto c : line)
+			{
+				row.push_back(c);
+				if(c == '@')
+					rs.push_back(make_tuple((row.size() -1),t.size()));
+				else if(c == '$')
+					bs.push_back(make_tuple((row.size() -1),t.size()));
+				else if(c == '.')
+					ds.push_back(make_tuple((row.size() -1),t.size()));
+			}
+			t.push_back(row);
 		}
-		return da<db;
-	};
-};
+
+		cout << rs.size() << " " << bs.size() << " " << ds.size() << " " << endl << "rs: " << endl;
 
 
-#endif
+		ifs.close();
+	}
+	vector<vector<string> > r_moves(rs.size());
+	bool solvable= turn(t, rs, bs, ds, r_moves, 0);
+
+
+	if(solvable)
+	{
+		for(string s : r_moves.at(0))
+		{
+			cout<<s<<endl;
+			//performMove(t, rs.at(0), bs.at(0), s, true);
+		}
+		for(string s : r_moves.at(1))
+		{
+			cout<<s<<endl;
+			//performMove(t, rs.at(0), bs.at(0), s, true);
+		}
+	}
+
+	return 0;
+}
+*/

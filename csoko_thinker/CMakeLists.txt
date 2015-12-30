@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(csoko_thinker)
 
+add_definitions(-std=c++11)
+
 find_package(catkin REQUIRED COMPONENTS
 	roscpp
 	tf
@@ -51,7 +53,8 @@ include_directories(
 	${catkin_INCLUDE_DIRS}
 )
 
-add_executable(csoko_thinker src/csoko_thinker.cpp src/csoko_frame.cpp src/csoko_object.cpp src/csoko_tile.cpp)
+add_executable(csoko_thinker src/csoko_thinker.cpp src/csoko_frame.cpp
+ 	src/csoko_object.cpp src/csoko_tile.cpp src/csoko_solver.cpp)
 add_dependencies(csoko_thinker stdr_msgs_gencpp) # wait for stdr_msgs to be build
 
 target_link_libraries(csoko_thinker 

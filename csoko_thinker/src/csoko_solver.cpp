@@ -5,197 +5,176 @@
  *      Author: dmendonca
  */
 
-#include <fstream>
-#include <iostream>
-#include <string>
-#include <vector>
-#include <queue>
-#include <tuple>
-#include <array>
-#include <map>
-#include <boost/algorithm/string.hpp>
-#include <boost/unordered_set.hpp>
+#include "csoko_thinker/csoko_solver.h"
 
 using namespace std;
 
-typedef vector<char> TableRow;
-typedef vector<TableRow> Table;
-typedef tuple<size_t, size_t> T_pos;
-typedef vector<T_pos> Vec_t_pos;
 
-struct Board {
-	Table sData, dData;
-	int px, py;
-
-
-	bool setRobot(size_t xx, size_t yy){
-		bool correctRobotPos = false;
-		if(sData.size()> yy && sData.at(yy).size() > xx)
-			if(sData.at(yy).at(xx) == '@')
-			{
-				px = xx;
-				py = yy;
-				correctRobotPos = true;
-			}
-
-		return correctRobotPos;
-	}
-
-	void setMap(Table t, bool toSetRobot=false)
-	{
-
-		sData.clear();
-		dData.clear();
-		map<char,char> maps = {{' ',' '}, {'.','.'}, {'@',' '},
-				{'#','#'}, {'$',' '}},
-						mapd = {{' ',' '}, {'.',' '}, {'@','@'},
-								{'#',' '}, {'$','*'}};
-
-		for(size_t i = 0; i < t.size(); i++)
+bool Board::setRobot(size_t xx, size_t yy){
+	bool correctRobotPos = false;
+	if(sData.size()> yy && sData.at(yy).size() > xx)
+		if(sData.at(yy).at(xx) == '@')
 		{
-			TableRow sTemp, dTemp;
-			for (size_t c = 0; c < t.at(i).size(); c++) {
-				char ch = t.at(i).at(c);
-				sTemp.push_back(maps[ch]);
-				dTemp.push_back(mapd[ch]);
-				if(toSetRobot && ch == '@')
-				{
-					px=c;
-					py=i;
-				}
-			}
-			sData.push_back(sTemp);
-			dData.push_back(dTemp);
+			px = xx;
+			py = yy;
+			correctRobotPos = true;
 		}
-	}
 
-	void setRobotAndMap(int xx, int yy, Table t)
+	return correctRobotPos;
+}
+
+void Board::setMap(Table t, bool toSetRobot)
+{
+
+	sData.clear();
+	dData.clear();
+	map<char,char> maps = {{' ',' '}, {'.','.'}, {'@',' '},
+			{'#','#'}, {'$',' '}},
+					mapd = {{' ',' '}, {'.',' '}, {'@','@'},
+							{'#',' '}, {'$','*'}};
+
+	for(size_t i = 0; i < t.size(); i++)
 	{
-		bool goodRobot = setRobot(xx, yy);
-		setMap(t, !goodRobot);
-
-	}
-
-
-	Board(int xx, int yy, Table t)
-	{
-		setRobotAndMap(xx, yy, t);
-	}
-
-
-	Board(string b) {
-		vector<string> data;
-		boost::split(data, b, boost::is_any_of("\n"));
-
-		//save higher length in width
-		size_t width = 0;
-		for (auto &row: data)
-			width = max(width, row.size());
-
-		map<char,char> maps = {{' ',' '}, {'.','.'}, {'@',' '},
-				{'#','#'}, {'$',' '}},
-						mapd = {{' ',' '}, {'.',' '}, {'@','@'},
-								{'#',' '}, {'$','*'}};
-
-		for (size_t r = 0; r < data.size(); r++) {
-			TableRow sTemp, dTemp;
-			for (size_t c = 0; c < width; c++) {
-				char ch = c < data[r].size() ? data[r][c] : ' ';
-				sTemp.push_back(maps[ch]);
-				dTemp.push_back(mapd[ch]);
-				if (ch == '@') {
-					px = c;
-					py = r;
-				}
+		TableRow sTemp, dTemp;
+		for (size_t c = 0; c < t.at(i).size(); c++) {
+			char ch = t.at(i).at(c);
+			sTemp.push_back(maps[ch]);
+			dTemp.push_back(mapd[ch]);
+			if(toSetRobot && ch == '@')
+			{
+				px=c;
+				py=i;
 			}
-			sData.push_back(sTemp);
-			dData.push_back(dTemp);
 		}
+		sData.push_back(sTemp);
+		dData.push_back(dTemp);
 	}
+}
+
+void Board::setRobotAndMap(int xx, int yy, Table t)
+{
+	bool goodRobot = setRobot(xx, yy);
+	setMap(t, !goodRobot);
+
+}
 
 
+Board::Board(int xx, int yy, Table t)
+{
+	setRobotAndMap(xx, yy, t);
+}
 
-	bool move(int x, int y, int dx, int dy, Table &data) {
-		if (sData[y+dy][x+dx] == '#' || data[y+dy][x+dx] != ' ')
-			return false;
 
-		data[y][x] = ' ';
-		data[y+dy][x+dx] = '@';
-		return true;
+Board::Board(string b) {
+	vector<string> data;
+	boost::split(data, b, boost::is_any_of("\n"));
+
+	//save higher length in width
+	size_t width = 0;
+	for (auto &row: data)
+		width = max(width, row.size());
+
+	map<char,char> maps = {{' ',' '}, {'.','.'}, {'@',' '},
+			{'#','#'}, {'$',' '}},
+					mapd = {{' ',' '}, {'.',' '}, {'@','@'},
+							{'#',' '}, {'$','*'}};
+
+	for (size_t r = 0; r < data.size(); r++) {
+		TableRow sTemp, dTemp;
+		for (size_t c = 0; c < width; c++) {
+			char ch = c < data[r].size() ? data[r][c] : ' ';
+			sTemp.push_back(maps[ch]);
+			dTemp.push_back(mapd[ch]);
+			if (ch == '@') {
+				px = c;
+				py = r;
+			}
+		}
+		sData.push_back(sTemp);
+		dData.push_back(dTemp);
 	}
+}
 
-	bool push(int x, int y, int dx, int dy, Table &data) {
-		if (sData[y+2*dy][x+2*dx] == '#' || data[y+2*dy][x+2*dx] != ' ')
-			return false;
 
-		data[y][x] = ' ';
-		data[y+dy][x+dx] = '@';
-		data[y+2*dy][x+2*dx] = '*';
-		return true;
-	}
 
-	bool isSolved(const Table &data) {
-		for (size_t r = 0; r < data.size(); r++)
-			for (size_t c = 0; c < data[r].size(); c++)
-				if ((sData[r][c] == '.') != (data[r][c] == '*'))
-					return false;
-		return true;
-	}
+bool Board::move(int x, int y, int dx, int dy, Table &data) {
+	if (sData[y+dy][x+dx] == '#' || data[y+dy][x+dx] != ' ')
+		return false;
 
-	string solve() {
-		boost::unordered_set<Table, boost::hash<Table>> visited;
-		visited.insert(dData);
+	data[y][x] = ' ';
+	data[y+dy][x+dx] = '@';
+	return true;
+}
 
-		queue<tuple<Table, string, int, int> > open;
-		open.push(make_tuple(dData, "", px, py));
+bool Board::push(int x, int y, int dx, int dy, Table &data) {
+	if (sData[y+2*dy][x+2*dx] == '#' || data[y+2*dy][x+2*dx] != ' ')
+		return false;
 
-		vector<tuple<int, int, char, char>> dirs = {
-				make_tuple( 0, -1, 'u', 'U'),
-				make_tuple( 1,  0, 'r', 'R'),
-				make_tuple( 0,  1, 'd', 'D'),
-				make_tuple(-1,  0, 'l', 'L')
-		};
+	data[y][x] = ' ';
+	data[y+dy][x+dx] = '@';
+	data[y+2*dy][x+2*dx] = '*';
+	return true;
+}
 
-		while (open.size() > 0) {
-			Table temp, cur = get<0>(open.front());
-			string cSol = get<1>(open.front());
-			int x = get<2>(open.front());
-			int y = get<3>(open.front());
-			open.pop();
+bool Board::isSolved(const Table &data) {
+	for (size_t r = 0; r < data.size(); r++)
+		for (size_t c = 0; c < data[r].size(); c++)
+			if ((sData[r][c] == '.') != (data[r][c] == '*'))
+				return false;
+	return true;
+}
 
-			for (int i = 0; i < 4; ++i) {
-				temp = cur;
-				int dx = get<0>(dirs[i]);
-				int dy = get<1>(dirs[i]);
+string Board::solve() {
+	boost::unordered_set<Table, boost::hash<Table>> visited;
+	visited.insert(dData);
 
-				if (temp[y+dy][x+dx] == '*') {
-					if (push(x, y, dx, dy, temp) &&
-							visited.find(temp) == visited.end()) {
-						if (isSolved(temp))
-							return cSol + get<3>(dirs[i]);
-						open.push(make_tuple(temp, cSol + get<3>(dirs[i]),
-								x+dx, y+dy));
-						visited.insert(temp);
-					}
-				} else if (move(x, y, dx, dy, temp) &&
+	queue<tuple<Table, string, int, int> > open;
+	open.push(make_tuple(dData, "", px, py));
+
+	vector<tuple<int, int, char, char>> dirs = {
+			make_tuple( 0, -1, 'u', 'U'),
+			make_tuple( 1,  0, 'r', 'R'),
+			make_tuple( 0,  1, 'd', 'D'),
+			make_tuple(-1,  0, 'l', 'L')
+	};
+
+	while (open.size() > 0) {
+		Table temp, cur = get<0>(open.front());
+		string cSol = get<1>(open.front());
+		int x = get<2>(open.front());
+		int y = get<3>(open.front());
+		open.pop();
+
+		for (int i = 0; i < 4; ++i) {
+			temp = cur;
+			int dx = get<0>(dirs[i]);
+			int dy = get<1>(dirs[i]);
+
+			if (temp[y+dy][x+dx] == '*') {
+				if (push(x, y, dx, dy, temp) &&
 						visited.find(temp) == visited.end()) {
 					if (isSolved(temp))
-						return cSol + get<2>(dirs[i]);
-					open.push(make_tuple(temp, cSol + get<2>(dirs[i]),
+						return cSol + get<3>(dirs[i]);
+					open.push(make_tuple(temp, cSol + get<3>(dirs[i]),
 							x+dx, y+dy));
 					visited.insert(temp);
 				}
+			} else if (move(x, y, dx, dy, temp) &&
+					visited.find(temp) == visited.end()) {
+				if (isSolved(temp))
+					return cSol + get<2>(dirs[i]);
+				open.push(make_tuple(temp, cSol + get<2>(dirs[i]),
+						x+dx, y+dy));
+				visited.insert(temp);
 			}
 		}
-
-		return "No solution";
 	}
-};
+
+	return "No solution";
+}
 
 
-/**
- *
- */
+
 void printBoard(const Table &t)
 {
 	for(auto row: t)
@@ -207,9 +186,7 @@ void printBoard(const Table &t)
 }
 
 
-/**
- *Sets all robots, boxes and delivery points as walls
- */
+
 void allAsWalls(Table &t, const Vec_t_pos &rs, const Vec_t_pos &bs, const Vec_t_pos &ds)
 {
 	for(T_pos r_pos : rs)
@@ -227,9 +204,7 @@ void allAsWalls(Table &t, const Vec_t_pos &rs, const Vec_t_pos &bs, const Vec_t_
 }
 
 
-/**
- *
- */
+
 void allAsBefore(Table &t, const Vec_t_pos &rs, const Vec_t_pos &bs, const Vec_t_pos &ds)
 {
 	for(T_pos r_pos : rs)
@@ -246,14 +221,6 @@ void allAsBefore(Table &t, const Vec_t_pos &rs, const Vec_t_pos &bs, const Vec_t
 	}
 }
 
-
-/**
- *Set a robot position, a box and a location to where the box should be taken in a Table
- *@t table to add the elements
- *@r robot position in the table
- *@b box position in the table
- *@d destiny position in the table where the box should be taken
- */
 void setInterests(Table &t, const T_pos &r, const T_pos &b, const T_pos &d)
 {
 	t.at(get<1>(r)).at(get<0>(r)) = '@';
@@ -262,26 +229,15 @@ void setInterests(Table &t, const T_pos &r, const T_pos &b, const T_pos &d)
 }
 
 
-/**
- *Sets a box and a delivery point in a Table as walls
- */
 void negateInterest(Table &t, const T_pos &b, const T_pos &d)
 {
-	/*
-	cout<<"box x: " << get<0>(b)<<endl;
-	cout<<"box y: " << get<1>(b)<<endl;
-	cout<<"des x: " << get<0>(d)<<endl;
-	cout<<"des y: " << get<1>(d)<<endl;
-	 */
 	t.at(get<1>(b)).at(get<0>(b)) = '#';
 	t.at(get<1>(d)).at(get<0>(d)) = '#';
 }
 
 
-/**
- *
- */
-void performMove(Table &t, T_pos &r, T_pos &b, const string &sol, bool isPrint=false)
+
+void performMove(Table &t, T_pos &r, T_pos &b, const string &sol, bool isPrint)
 {
 	int r_x = get<0>(r), r_y = get<1>(r);
 	int newX = 0, newY = 0;
@@ -315,20 +271,9 @@ void performMove(Table &t, T_pos &r, T_pos &b, const string &sol, bool isPrint=f
 	get<1>(r) = r_y;
 	get<0>(b) = r_x + newX;
 	get<1>(b) = r_y + newY;
-	/*
-	cout<< "After performMove" <<endl;
-	cout<<"box x: " << get<0>(b)<<endl;
-	cout<<"box y: " << get<1>(b)<<endl;
-	cout<<"rob x: " << get<0>(r)<<endl;
-	cout<<"rob y: " << get<1>(r)<<endl;
-	cout <<endl<<endl;
-	 */
 }
 
 
-/**
- *
- */
 bool turn(const Table t, const Vec_t_pos rs, const Vec_t_pos bs, const Vec_t_pos ds, vector<vector<string> > &moves, size_t robot_nr)
 {
 	if(bs.size() == 0)
@@ -362,14 +307,6 @@ bool turn(const Table t, const Vec_t_pos rs, const Vec_t_pos bs, const Vec_t_pos
 					continue; //can't solve
 
 				allAsBefore(t2, rs2, bs2, ds2);
-				/*
-				cout<< "Before performMove" <<endl;
-				cout<<"box x: " << get<0>(bs2.at(0))<<endl;
-				cout<<"box y: " << get<1>(bs2.at(0))<<endl;
-				cout<<"des x: " << get<0>(ds2.at(0))<<endl;
-				cout<<"des y: " << get<1>(ds2.at(0))<<endl;
-				cout <<endl<<endl;*/
-
 				performMove(t2, rs2.at(robot_nr_now), bs2.at(i), sol);
 				negateInterest(t2, bs2.at(i), ds2.at(j));
 
@@ -398,9 +335,6 @@ bool turn(const Table t, const Vec_t_pos rs, const Vec_t_pos bs, const Vec_t_pos
 }
 
 
-/**
- *
- */
 void dynamicSolPrint(Table t){
 	printBoard(t);
 	Board b(0, 0, t);
@@ -432,6 +366,7 @@ void dynamicSolPrint(Table t){
 		}
 	cout<<endl<<endl<<solution<<endl<<endl;
 }
+
 
 
 
@@ -489,4 +424,5 @@ int main() {
 
 	return 0;
 }
-*/
+ */
+
