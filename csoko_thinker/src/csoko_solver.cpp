@@ -274,7 +274,7 @@ void performMove(Table &t, T_pos &r, T_pos &b, const string &sol, bool isPrint)
 }
 
 
-bool turn(const Table t, const Vec_t_pos rs, const Vec_t_pos bs, const Vec_t_pos ds, vector<vector<string> > &moves, size_t robot_nr)
+bool turn(const Table t, const Vec_t_pos rs, const Vec_t_pos bs, const Vec_t_pos ds, Moves_R &moves, size_t robot_nr)
 {
 	if(bs.size() == 0)
 		return true;
@@ -315,14 +315,15 @@ bool turn(const Table t, const Vec_t_pos rs, const Vec_t_pos bs, const Vec_t_pos
 				//save to restore
 				bs2.erase(bs2.begin() + i);
 				ds2.erase(ds2.begin() + j);
-				moves.at(robot_nr_now).push_back(sol);
+				Robot_Move a_move = make_tuple(robot_nr_now, sol);
+				moves.push_back(a_move);
 
 				allSolved = turn(t2, rs2, bs2, ds2, moves, robot_nr_now);
 
 				if(allSolved)
 					return true;
 
-				moves.at(robot_nr_now).pop_back();
+				moves.pop_back();
 			}
 		}
 

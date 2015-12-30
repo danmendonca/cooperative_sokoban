@@ -4,6 +4,9 @@
  *  Created on: Dec 28, 2015
  *      Author: dmendonca
  */
+#ifndef CSOKO_SOLVER__H
+#define CSOKO_SOLVER__H
+
 
 #include <fstream>
 #include <iostream>
@@ -20,6 +23,8 @@ typedef std::vector<char> TableRow;
 typedef std::vector<TableRow> Table;
 typedef std::tuple<size_t, size_t> T_pos;
 typedef std::vector<T_pos> Vec_t_pos;
+typedef std::tuple<size_t, std::string> Robot_Move;
+typedef std::vector<Robot_Move > Moves_R;
 
 struct Board {
 	Table sData, dData;
@@ -82,7 +87,7 @@ void performMove(Table &t, T_pos &r, T_pos &b, const std::string &sol, bool isPr
 /**
  *
  */
-bool turn(const Table t, const Vec_t_pos rs, const Vec_t_pos bs, const Vec_t_pos ds, std::vector<std::vector<std::string> > &moves, size_t robot_nr);
+bool turn(const Table t, const Vec_t_pos rs, const Vec_t_pos bs, const Vec_t_pos ds, Moves_R &moves, size_t robot_nr);
 
 
 /**
@@ -146,3 +151,4 @@ int main() {
 	return 0;
 }
 */
+#endif
