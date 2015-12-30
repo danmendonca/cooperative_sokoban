@@ -45,10 +45,10 @@ CSoko_Thinker::CSoko_Thinker(int argc,char **argv)
 
 	CSokoFrame::setPathToResources(res_path);
 
-//	ros::Timer timer = nh.createTimer(ros::Duration(0.1), onUpdate);
+	//	ros::Timer timer = nh.createTimer(ros::Duration(0.1), onUpdate);
 	ros::Timer timer = nh.createTimer(ros::Duration(0.1), &CSoko_Thinker::timerCallback,this);
 	///TODO START LOGIC
-	
+
 	/*
     if(argc != 3)
     {
@@ -105,7 +105,7 @@ void CSoko_Thinker::updateMap() {
 
 void CSoko_Thinker::update()
 {
-//	map.drawAll(frame);
+	//	map.drawAll(frame);
 }
 
 void CSoko_Thinker::mapCallback(const nav_msgs::OccupancyGrid& msg){
@@ -155,9 +155,9 @@ void CSoko_Thinker::callback(const sensor_msgs::LaserScan& msg)
 	{
 		float real_dist = laser_scan_msg.ranges[i];
 		linear -= cos(laser_scan_msg.angle_min + i * laser_scan_msg.angle_increment)
-        								/ (1.0 + real_dist * real_dist);
+        												/ (1.0 + real_dist * real_dist);
 		rotational -= sin(laser_scan_msg.angle_min + i * laser_scan_msg.angle_increment)
-        								/ (1.0 + real_dist * real_dist);
+        												/ (1.0 + real_dist * real_dist);
 	}
 	geometry_msgs::Twist cmd;
 
@@ -234,15 +234,15 @@ void CSoko_Thinker::loadMap(string mapName)
 			std::vector<CSokoTile> mapRow;
 			for(int i=0;i<line.length(); i++)
 			{
-				if(line[i] == '-')
+				if(line[i] == ' ')
 				{
 					mapRow.push_back(CSokoTile(i,row,false, false));
 				}
-				else if(line[i] == 'P')
+				else if(line[i] == '#')
 				{
 					mapRow.push_back(CSokoTile(i,row,false, true));
 				}
-				else if(line[i] == 'R')
+				else if(line[i] == '@')
 				{
 					CSokoTile tile = CSokoTile(i,row,false, false);
 					CSokoObject r(i,row,false);
@@ -250,11 +250,17 @@ void CSoko_Thinker::loadMap(string mapName)
 					tile.setObject();
 					mapRow.push_back(tile);
 				}
-				else if(line[i] == 'C')
+				else if(line[i] == '$')
 				{
 					CSokoTile tile = CSokoTile(i,row,false, false);
 					CSokoObject b(i,row,true);
 					objects.push_back(b);
+					tile.setObject();
+					mapRow.push_back(tile);
+				}
+				else if(line[i] == '.')
+				{
+					CSokoTile tile(i,row, true, false);
 					tile.setObject();
 					mapRow.push_back(tile);
 				}
@@ -271,7 +277,7 @@ void CSoko_Thinker::loadMap(string mapName)
 
 void CSoko_Thinker::drawAll()
 {
-	
+
 }
 
 
