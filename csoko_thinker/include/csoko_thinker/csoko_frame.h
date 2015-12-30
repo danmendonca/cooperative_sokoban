@@ -45,6 +45,12 @@ namespace csoko_thinker
 			void loadMap(string mapName);
 
 			void closeWindow();
+
+			static std::string path_to_res;
+
+			static void setPathToResources(std::string);
+
+
 		private:
 			sf::Sprite bgSprite;
 			sf::Texture bg;

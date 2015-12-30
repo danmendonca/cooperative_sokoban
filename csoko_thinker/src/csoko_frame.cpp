@@ -6,26 +6,34 @@
  */
 namespace csoko_thinker{
 
+std::string CSokoFrame::path_to_res = "";
+
+void CSokoFrame::setPathToResources(std::string p)
+{
+	CSokoFrame::path_to_res = p;
+}
+
 CSokoFrame::CSokoFrame()
 {
 	ROS_ERROR("WINDOW CREATE");
 	window.create(sf::VideoMode( 500, 500 ), "CSOKO");
 	ROS_ERROR("BEFORE FRAME LOAD");
+
 	//LOAD GOAL
-	string goalPath = "/home/viki/catkin_ws/src/cooperative_sokoban/csoko_images/goal.png";
+	string goalPath = path_to_res +"/images/goal.png";
 	if (!goal.loadFromFile(goalPath))
 	{
 	    // error...
 	}
 	goalSprite.setTexture(goal);
 	//LOAD BOX
-	string boxPath = "/home/viki/catkin_ws/src/cooperative_sokoban/csoko_images/box.png";
+	string boxPath = path_to_res +"/images/box.png";
 	if (!boxIcon.loadFromFile(boxPath))
 	{
 	    // error...
 	}
 	//LOAD ROBOT
-	string robotPath = "/home/viki/catkin_ws/src/cooperative_sokoban/csoko_images/robot.png";
+	string robotPath = path_to_res +"/images/robot.png";
 	if (!robotIcon.loadFromFile(robotPath))
 	{
 	    // error...
@@ -41,7 +49,7 @@ void CSokoFrame::closeWindow()
 
 void CSokoFrame::loadMap(string mapName)
 {
-	string bgPath = "/home/viki/catkin_ws/src/cooperative_sokoban/csoko_resources/maps/"+mapName+".png";
+	string bgPath = mapName;
 	if (!bg.loadFromFile(bgPath))
 	{
 	    // error...

@@ -17,6 +17,8 @@ using namespace csoko_thinker;
 int main(int argc,char **argv)
 {
 	ros::init(argc, argv, "csoko_thinker_node", ros::init_options::AnonymousName);
+	string res_path(argv[1]);
+	CSokoFrame::setPathToResources(res_path);
 	CSoko_Thinker obj(argc, argv);
 	ros::spin();
 	ROS_ERROR("After app");
@@ -34,9 +36,15 @@ namespace csoko_thinker{
 CSoko_Thinker::CSoko_Thinker(int argc,char **argv)
 {
 	odom_state = 0;
-	string name(argv[1]);
+	string res_path(argv[1]);
+	string name = res_path + argv[2];
+
+	CSokoFrame::setPathToResources(res_path);
+
 	ROS_ERROR("MAP NAME: %s\n", name.c_str());
 	loadMap(name);
+
+	CSokoFrame::setPathToResources(res_path);
 
 //	ros::Timer timer = nh.createTimer(ros::Duration(0.1), onUpdate);
 	ros::Timer timer = nh.createTimer(ros::Duration(0.1), &CSoko_Thinker::timerCallback,this);
@@ -216,7 +224,7 @@ void CSoko_Thinker::loadMap(string mapName)
 {
 	string line;
 	int row = 0;
-	string mapFilePath = "/home/viki/catkin_ws/src/cooperative_sokoban/" + mapName;
+	string mapFilePath = mapName;
 	frame.loadMap(mapName);
 	
 	ifstream mapFile(mapFilePath.c_str());
