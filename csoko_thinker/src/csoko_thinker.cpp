@@ -296,16 +296,29 @@ void CSoko_Thinker::loadMap(string mapName)
 			T_pos dummy = make_tuple(0,0);
 
 			printBoard(t2);
+			int frames = 0;
 			for(auto r_mv : moves)
 			{
 				int r_nr = get<0>(r_mv);
+				for()
+				CSoko_Object robot = objects[r_nr];
 				ROS_WARN("Move for robot_nr: %i", r_nr);
 				string complete_mov = get<1>(r_mv);
-				performMove(t2, rs2.at(r_nr), dummy, complete_mov);
-
-				printBoard(t2);
+				vector<string> ind_mov;
+				//DIVIDIR AQUI preenchendo o ind_mov
+				for(int i=0; i<ind_mov.size(); i++)
+				{					
+					performMove(t2, rs2.at(r_nr), dummy, ind_mov[i]);
+					// newX/newY sao os teus
+					int pos = getRobotPosByNo(r_nr);
+					//objects[pos].x = newX;objects[pos].drawX = newX;
+					//objects[pos].y = newY;objects[pos].drawY = newY;
+					frame.signalUpdate(grid,objects);
+					frames=0;
+				
+					printBoard(t2);
+				}
 			}
-
 		}
 	}
 	else {
@@ -319,4 +332,20 @@ void CSoko_Thinker::drawAll()
 }
 
 
+}
+
+int CSoko_Thinker::getRobotPosByNo(int number)
+{
+	int i;
+	int skipped = 0;
+	for(i=0;i<objects.size();i++)
+	{
+		if(!objects[i].isBox && number == skipped)
+		{
+			break;
+		}
+		else if(!objects[i].isBox)
+			skipped++;
+	}
+	return i;
 }
