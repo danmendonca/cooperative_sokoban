@@ -38,7 +38,8 @@ private:
 
 	std::vector<CSokoObject> objects;
 	std::vector<std::tuple<size_t, std::string> > moves;
-	std::vector<std::tuple<size_t, size_t> > robots_pos, boxes_pos, delivery_pos;
+	std::vector<std::tuple<size_t, size_t> > robots_pos, boxes_pos, deliverys_pos;
+	std::vector<std::vector<char> > map_table;
 
 	const static bool CSOKO_THINKER_DEBUG = false;
 	int odom_state;

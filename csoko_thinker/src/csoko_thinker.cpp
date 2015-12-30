@@ -233,9 +233,11 @@ void CSoko_Thinker::loadMap(string mapName)
 	{
 		while(getline(mapFile,line))
 		{
+			TableRow tr;
 			std::vector<CSokoTile> mapRow;
-			for(int i=0;i<line.length(); i++)
+			for(size_t i=0;i<line.length(); i++)
 			{
+				tr.push_back(line[i]);
 				if(line[i] == ' ')
 				{
 					mapRow.push_back(CSokoTile(i,row,false, false));
@@ -251,6 +253,8 @@ void CSoko_Thinker::loadMap(string mapName)
 					objects.push_back(r);
 					tile.setObject();
 					mapRow.push_back(tile);
+					T_pos rob_pos = make_tuple(i, row);
+					robots_pos.push_back(rob_pos);
 				}
 				else if(line[i] == '$')
 				{
@@ -259,18 +263,35 @@ void CSoko_Thinker::loadMap(string mapName)
 					objects.push_back(b);
 					tile.setObject();
 					mapRow.push_back(tile);
+					T_pos box_pos = make_tuple(i, row);
+					boxes_pos.push_back(box_pos);
 				}
 				else if(line[i] == '.')
 				{
 					CSokoTile tile(i,row, true, false);
 					tile.setObject();
 					mapRow.push_back(tile);
+					T_pos del_pos = make_tuple(i, row);
+					deliverys_pos.push_back(del_pos);
 				}
 			}
 			grid.push_back(mapRow);
+			map_table.push_back(tr);
 			row++;
 		}
 		mapFile.close();
+
+
+		bool solved = turn(map_table, robots_pos, boxes_pos, deliverys_pos, moves, 0);
+		if(!solved)
+		{
+			ROS_ERROR("MAP has no possible solution");
+		}
+
+		if(CSOKO_THINKER_DEBUG)
+		{
+
+		}
 	}
 	else {
 		cout << "Unable to find map file." << endl;
