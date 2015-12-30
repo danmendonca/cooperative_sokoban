@@ -157,9 +157,9 @@ void CSoko_Thinker::callback(const sensor_msgs::LaserScan& msg)
 	{
 		float real_dist = laser_scan_msg.ranges[i];
 		linear -= cos(laser_scan_msg.angle_min + i * laser_scan_msg.angle_increment)
-        												/ (1.0 + real_dist * real_dist);
+        														/ (1.0 + real_dist * real_dist);
 		rotational -= sin(laser_scan_msg.angle_min + i * laser_scan_msg.angle_increment)
-        												/ (1.0 + real_dist * real_dist);
+        														/ (1.0 + real_dist * real_dist);
 	}
 	geometry_msgs::Twist cmd;
 
@@ -286,10 +286,25 @@ void CSoko_Thinker::loadMap(string mapName)
 		if(!solved)
 		{
 			ROS_ERROR("MAP has no possible solution");
+			exit(-1);
 		}
 
 		if(CSOKO_THINKER_DEBUG)
 		{
+			Table t2(map_table);
+			Vec_t_pos rs2(robots_pos), bs2(boxes_pos), ds2(deliverys_pos);
+			T_pos dummy = make_tuple(0,0);
+
+			printBoard(t2);
+			for(auto r_mv : moves)
+			{
+				int r_nr = get<0>(r_mv);
+				ROS_WARN("Move for robot_nr: %i", r_nr);
+				string complete_mov = get<1>(r_mv);
+				performMove(t2, rs2.at(r_nr), dummy, complete_mov);
+
+				printBoard(t2);
+			}
 
 		}
 	}

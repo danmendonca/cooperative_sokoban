@@ -175,14 +175,20 @@ string Board::solve() {
 
 
 
-void printBoard(const Table &t)
+string printBoard(const Table &t)
 {
+	string board = "";
 	for(auto row: t)
 	{
-		for(auto c : row)
+		for(auto c : row){
 			cout<<c;
+			board += c;
+		}
 		cout<<endl;
+		board+='\n';
 	}
+	board+='\0';
+	return board;
 }
 
 
@@ -255,6 +261,7 @@ void performMove(Table &t, T_pos &r, T_pos &b, const string &sol, bool isPrint)
 			newX = 1;
 		else newX=0;
 
+		t.at(r_y).at(r_x) = ' ';
 		r_y += newY;
 		r_x += newX;
 
@@ -262,7 +269,6 @@ void performMove(Table &t, T_pos &r, T_pos &b, const string &sol, bool isPrint)
 			t.at(r_y +newY).at(r_x + newX) = '$';
 
 		t.at(r_y).at(r_x) = '@';
-		t.at(r_y).at(r_x) = ' ';
 
 		if(isPrint)
 			printBoard(t);
@@ -290,7 +296,7 @@ bool turn(const Table t, const Vec_t_pos rs, const Vec_t_pos bs, const Vec_t_pos
 	{
 		for(size_t i = 0; i < bs.size(); i++)
 		{
-			for(size_t j = 0; j < ds.size(); i++)
+			for(size_t j = 0; j < ds.size(); j++)
 			{
 				Table t2(t);
 				Vec_t_pos rs2(rs);
@@ -425,5 +431,5 @@ int main() {
 
 	return 0;
 }
- */
+*/
 

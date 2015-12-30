@@ -41,7 +41,7 @@ private:
 	std::vector<std::tuple<size_t, size_t> > robots_pos, boxes_pos, deliverys_pos;
 	std::vector<std::vector<char> > map_table;
 
-	const static bool CSOKO_THINKER_DEBUG = false;
+	const static bool CSOKO_THINKER_DEBUG = true;
 	int odom_state;
 	int8_t **my_map;
 	int map_height, map_width;

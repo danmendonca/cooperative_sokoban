@@ -48,7 +48,7 @@ struct Board {
 /**
  *
  */
-void printBoard(const Table &t);
+std::string printBoard(const Table &t);
 
 
 /**
