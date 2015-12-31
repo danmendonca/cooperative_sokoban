@@ -3,6 +3,7 @@
 
 #include <cstdlib>
 #include <ctime>
+#include <unistd.h>
 
 
 
@@ -43,9 +44,10 @@ CSoko_Thinker::CSoko_Thinker(int argc,char **argv)
 	CSokoFrame::setPathToResources(res_path);
 
 	ROS_ERROR("MAP NAME: %s\n", name.c_str());
-	loadMap(name);
 
 	CSokoFrame::setPathToResources(res_path);
+
+	loadMap(name);
 
 	//	ros::Timer timer = nh.createTimer(ros::Duration(0.1), onUpdate);
 	ros::Timer timer = nh.createTimer(ros::Duration(0.1), &CSoko_Thinker::timerCallback,this);
@@ -76,7 +78,83 @@ CSoko_Thinker::CSoko_Thinker(int argc,char **argv)
 	occ_grid_topic = "map";
 	occ_grid_sub = nh.subscribe(occ_grid_topic.c_str(), 1, &CSoko_Thinker::mapCallback, this);
 
-	frame.signalUpdate(grid,objects);
+	bool solved = turn(map_table, robots_pos, boxes_pos, deliverys_pos, moves, 0);
+	if(!solved)
+	{
+		ROS_ERROR("MAP has no possible solution");
+		exit(-1);
+	}
+
+	if(CSOKO_THINKER_DEBUG)
+	{
+		Table t2(map_table);
+		Vec_t_pos rs2(robots_pos), bs2(boxes_pos), ds2(deliverys_pos);
+		T_pos dummy = make_tuple(0,0);
+
+		printBoard(t2);
+		int frames = 0;
+		for(auto r_mv : moves)
+		{
+			int r_nr = get<0>(r_mv);
+
+			ROS_WARN("Move for robot_nr: %i", r_nr);
+			string complete_mov = get<1>(r_mv);
+			vector<string> ind_mov;
+			for(int i=0; i<complete_mov.length(); i++)
+			{
+				string temp;
+				temp.push_back(complete_mov[i]);
+				ind_mov.push_back(temp);
+			}
+			//DIVIDIR AQUI preenchendo o ind_mov
+			for(int i=0; i<ind_mov.size(); i++)
+			{					
+				Vec_t_pos bPoses = performMove(t2, rs2.at(r_nr), dummy, ind_mov[i]);
+				int pos = getRobotPosByNo(r_nr);
+				// newX/newY sao os teus
+
+				int newX,newY;
+				if(ind_mov[i]=="U"||ind_mov[i]=="u")
+				{
+					newX = objects[pos].x;
+					newY = objects[pos].y-1;
+				}
+				else if(ind_mov[i]=="D"||ind_mov[i]=="d")
+				{
+					newX = objects[pos].x;
+					newY = objects[pos].y+1;
+				}
+				else if(ind_mov[i]=="L"||ind_mov[i]=="l")
+				{
+					newX = objects[pos].x-1;
+					newY = objects[pos].y;
+				}
+				else
+				{
+					newX = objects[pos].x+1;
+					newY = objects[pos].y;
+				}
+
+				if(bPoses.size() > 1)
+				{
+					int newBoxX = get<0>(bPoses[1]); int newBoxY = get<1>(bPoses[1]);
+					int boxPos = getBoxPosByCoord(get<0>(bPoses[0]),get<1>(bPoses[0]));
+					objects[boxPos].x = newBoxX;objects[boxPos].drawX = newBoxX;
+					objects[boxPos].y = newBoxY;objects[boxPos].drawY = newBoxY;
+				}
+
+				objects[pos].x = newX;objects[pos].drawX = newX;
+				objects[pos].y = newY;objects[pos].drawY = newY;
+				frame.signalUpdate(grid,objects);
+				printBoard(t2);
+				sleep(1);
+//				while(frames<10000)
+//					frames++;
+//				frames=0;
+				cout << "Loop " << i << endl;
+			}
+		}
+	}
 }
 
 
@@ -248,6 +326,7 @@ void CSoko_Thinker::loadMap(string mapName)
 				}
 				else if(line[i] == '@')
 				{
+					cout << "Found Robot at " << i << "/" << row << endl;
 					CSokoTile tile = CSokoTile(i,row,false, false);
 					CSokoObject r(i,row,false);
 					objects.push_back(r);
@@ -282,44 +361,9 @@ void CSoko_Thinker::loadMap(string mapName)
 		mapFile.close();
 
 
-		bool solved = turn(map_table, robots_pos, boxes_pos, deliverys_pos, moves, 0);
-		if(!solved)
-		{
-			ROS_ERROR("MAP has no possible solution");
-			exit(-1);
-		}
 
-		if(CSOKO_THINKER_DEBUG)
-		{
-			Table t2(map_table);
-			Vec_t_pos rs2(robots_pos), bs2(boxes_pos), ds2(deliverys_pos);
-			T_pos dummy = make_tuple(0,0);
 
-			printBoard(t2);
-			int frames = 0;
-			for(auto r_mv : moves)
-			{
-				int r_nr = get<0>(r_mv);
-				for()
-				CSoko_Object robot = objects[r_nr];
-				ROS_WARN("Move for robot_nr: %i", r_nr);
-				string complete_mov = get<1>(r_mv);
-				vector<string> ind_mov;
-				//DIVIDIR AQUI preenchendo o ind_mov
-				for(int i=0; i<ind_mov.size(); i++)
-				{					
-					performMove(t2, rs2.at(r_nr), dummy, ind_mov[i]);
-					// newX/newY sao os teus
-					int pos = getRobotPosByNo(r_nr);
-					//objects[pos].x = newX;objects[pos].drawX = newX;
-					//objects[pos].y = newY;objects[pos].drawY = newY;
-					frame.signalUpdate(grid,objects);
-					frames=0;
-				
-					printBoard(t2);
-				}
-			}
-		}
+		
 	}
 	else {
 		cout << "Unable to find map file." << endl;
@@ -346,6 +390,19 @@ int CSoko_Thinker::getRobotPosByNo(int number)
 		}
 		else if(!objects[i].isBox)
 			skipped++;
+	}
+	return i;
+}
+
+int CSoko_Thinker::getBoxPosByCoord(int x, int y)
+{
+	int i;
+	for(i=0;i<objects.size();i++)
+	{
+		if(objects[i].isBox && objects[i].x==x && objects[i].y==y)
+		{
+			break;
+		}
 	}
 	return i;
 }

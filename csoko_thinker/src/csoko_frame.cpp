@@ -1,5 +1,10 @@
 #include "csoko_thinker/csoko_frame.h"
 
+sf::Texture bg;
+			sf::Texture robotIcon;
+			sf::Texture boxIcon;
+			sf::Texture goal;
+
 using namespace std;
 
 /**
@@ -26,7 +31,6 @@ CSokoFrame::CSokoFrame()
 	{
 		ROS_ERROR("COULD NOT LOAD MAP GRAPHICS");
 	}
-	goalSprite.setTexture(goal);
 	//LOAD BOX
 	string boxPath = path_to_res +"/images/box.png";
 	if (!boxIcon.loadFromFile(boxPath))
@@ -50,14 +54,10 @@ void CSokoFrame::closeWindow()
 
 void CSokoFrame::loadMap(string mapName)
 {
-	string bgPath = mapName;
-	if (!bg.loadFromFile(bgPath+".png"))
-	{
-	    // error...
-	}
-	bgSprite.setTexture(bg);
+	mName = mapName;
+
 	bgSprite.setPosition(sf::Vector2f(0, 0));
-	window.setSize(bg.getSize());
+	//window.setSize(bg.getSize());
 }
 
 void CSokoFrame::signalUpdate(vector<vector<CSokoTile> > grid, vector<CSokoObject> objects)
@@ -69,13 +69,22 @@ void CSokoFrame::signalUpdate(vector<vector<CSokoTile> > grid, vector<CSokoObjec
 
 void CSokoFrame::draw()
 {
-	if(window.isOpen())
-	{
-        window.clear();
+		window.clear(sf::Color::White);
 		//Draw Background
+		string bgPath = mName;
+		if (!bg.loadFromFile(bgPath+".png"))
+		{
+		    // error...
+		}
+		bgSprite.setTexture(bg);
+		window.draw(bgSprite);
 		if(bg.getSize().x != 0)
 		{
-			window.draw(bgSprite);
+
+		}
+		else
+		{
+			cout << "Map graphics not loaded" << endl;
 		}
 
 		//Draw Goal
@@ -88,9 +97,13 @@ void CSokoFrame::draw()
 				{
 					if(goal.getSize().x != 0)
 					{
+						cout << "Drawing goal" << endl;
+						goalSprite.setTexture(goal);
 						goalSprite.setPosition(sf::Vector2f(j*16, i*16));
 						window.draw(goalSprite);
 					}
+					else
+						cout << "Goal sprite not loaded" << endl;
 				}
 			}
 		}
@@ -109,7 +122,5 @@ void CSokoFrame::draw()
 			}
 		}
         window.display();
-	}
 }
-
 }

@@ -82,7 +82,7 @@ void negateInterest(Table &t, const T_pos &b, const T_pos &d);
 /**
  *
  */
-void performMove(Table &t, T_pos &r, T_pos &b, const std::string &sol, bool isPrint=false);
+Vec_t_pos performMove(Table &t, T_pos &r, T_pos &b, const std::string &sol, bool isPrint=false);
 
 /**
  *

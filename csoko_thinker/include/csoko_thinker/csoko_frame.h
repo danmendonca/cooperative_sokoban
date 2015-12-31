@@ -53,15 +53,13 @@ namespace csoko_thinker
 
 		private:
 			sf::Sprite bgSprite;
-			sf::Texture bg;
-			sf::Texture robotIcon;
-			sf::Texture boxIcon;
+			
 			sf::RenderWindow window;
-
+			std::string mName;
 			std::vector<CSokoObject> objects;
 			std::vector<std::vector<CSokoTile> > grid;
 			sf::Sprite goalSprite;
-			sf::Texture goal;
+
 	};
 }
 #endif

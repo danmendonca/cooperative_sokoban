@@ -243,8 +243,9 @@ void negateInterest(Table &t, const T_pos &b, const T_pos &d)
 
 
 
-void performMove(Table &t, T_pos &r, T_pos &b, const string &sol, bool isPrint)
+Vec_t_pos performMove(Table &t, T_pos &r, T_pos &b, const string &sol, bool isPrint)
 {
+	Vec_t_pos bPoses;
 	int r_x = get<0>(r), r_y = get<1>(r);
 	int newX = 0, newY = 0;
 	for(auto c: sol)
@@ -266,7 +267,10 @@ void performMove(Table &t, T_pos &r, T_pos &b, const string &sol, bool isPrint)
 		r_x += newX;
 
 		if(t.at(r_y).at(r_x) == '$')
+		{
+			bPoses.push_back(make_tuple(r_x,r_y));
 			t.at(r_y +newY).at(r_x + newX) = '$';
+		}
 
 		t.at(r_y).at(r_x) = '@';
 
@@ -277,6 +281,9 @@ void performMove(Table &t, T_pos &r, T_pos &b, const string &sol, bool isPrint)
 	get<1>(r) = r_y;
 	get<0>(b) = r_x + newX;
 	get<1>(b) = r_y + newY;
+	bPoses.push_back(b);
+
+	return bPoses;
 }
 
 
