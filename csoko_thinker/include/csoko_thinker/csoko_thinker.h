@@ -115,8 +115,10 @@ public:
 	std::vector<std::vector<CSokoTile> > grid;
 	void loadMap(std::string mapName);
 	void drawAll();
-	int getRobotPosByNo(int number);
 	int getBoxPosByCoord(int x, int y);
+	int getRobotPosByNo(int number);
+
+
 };
 }
 

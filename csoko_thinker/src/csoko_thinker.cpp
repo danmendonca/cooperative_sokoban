@@ -8,12 +8,6 @@
 
 
 
-//	<include file="$(find stdr_robot)/launch/robot_manager.launch" />
-
-//<node type="stdr_server_node" pkg="stdr_server" name="stdr_server" output="screen" args="$(find csoko_resources)/map/sokobanMap1.yaml"/>
-//<node pkg="tf" type="static_transform_publisher" name="world2map" args="0 0 0 0 0 0  world map 100" />
-//<include file="$(find stdr_gui)/launch/stdr_gui.launch"/>
-
 using namespace csoko_thinker;
 using namespace std;
 
@@ -375,9 +369,6 @@ void CSoko_Thinker::drawAll()
 
 }
 
-
-}
-
 int CSoko_Thinker::getRobotPosByNo(int number)
 {
 	int i;
@@ -405,4 +396,6 @@ int CSoko_Thinker::getBoxPosByCoord(int x, int y)
 		}
 	}
 	return i;
+}
+
 }
