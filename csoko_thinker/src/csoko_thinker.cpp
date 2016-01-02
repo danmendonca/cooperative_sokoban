@@ -1,18 +1,18 @@
 #include "csoko_thinker/csoko_thinker.h"
 #include "csoko_thinker/csoko_solver.h"
-
-#include <cstdlib>
-#include <ctime>
-#include <unistd.h>
-
-
-
-
 using namespace csoko_thinker;
 using namespace std;
 
 int main(int argc,char **argv)
 {
+	if(csoko_thinker::CSoko_Thinker::CSOKO_THINKER_DEBUG)
+	{
+
+		if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) ) {
+			ros::console::notifyLoggerLevelsChanged();
+		}
+	}
+
 	ros::init(argc, argv, "csoko_thinker_node", ros::init_options::AnonymousName);
 	string res_path(argv[1]);
 	CSokoFrame::setPathToResources(res_path);
@@ -37,7 +37,7 @@ CSoko_Thinker::CSoko_Thinker(int argc,char **argv)
 
 	CSokoFrame::setPathToResources(res_path);
 
-	ROS_ERROR("MAP NAME: %s\n", name.c_str());
+	ROS_DEBUG("MAP NAME: %s\n", name.c_str());
 
 	CSokoFrame::setPathToResources(res_path);
 
@@ -47,35 +47,13 @@ CSoko_Thinker::CSoko_Thinker(int argc,char **argv)
 	ros::Timer timer = nh.createTimer(ros::Duration(0.1), &CSoko_Thinker::timerCallback,this);
 	///TODO START LOGIC
 
-	/*
-    if(argc != 3)
-    {
-      ROS_ERROR(
-        "Usage : csoko_thinker csoko_thinker <robot_frame_id> <laser_frame_id>");
-      exit(0);
-    }
-
-    std::string robot_topic = std::string("/") + std::string(argv[1]);
-
-    laser_topic = robot_topic + std::string("/") + std::string(argv[2]);
-    speeds_topic = robot_topic + std::string("/cmd_vel");
-    odom_topic = robot_topic +  std::string("/odom");
-
-    odom_state = 0;
-
-    laser_sub = n_.subscribe(laser_topic.c_str(), 1, &CSoko_Thinker::callback, this);
-    odom_sub =   n_.subscribe(odom_topic.c_str(), 1, &CSoko_Thinker::odometryCallback, this);
-
-    cmd_vel_pub = n_.advertise<geometry_msgs::Twist>(speeds_topic.c_str(), 1);
-	 */
-
 	occ_grid_topic = "map";
 	occ_grid_sub = nh.subscribe(occ_grid_topic.c_str(), 1, &CSoko_Thinker::mapCallback, this);
 
 	bool solved = turn(map_table, robots_pos, boxes_pos, deliverys_pos, moves, 0);
 	if(!solved)
 	{
-		ROS_ERROR("MAP has no possible solution");
+		ROS_DEBUG("MAP has no possible solution");
 		exit(-1);
 	}
 
@@ -86,77 +64,84 @@ CSoko_Thinker::CSoko_Thinker(int argc,char **argv)
 		T_pos dummy = make_tuple(0,0);
 
 		printBoard(t2);
-		int frames = 0;
-		for(auto r_mv : moves)
+
+		V_Robot_Move current_moves;
+
+		do
 		{
-			int r_nr = get<0>(r_mv);
-
-			ROS_WARN("Move for robot_nr: %i", r_nr);
-			string complete_mov = get<1>(r_mv);
-			vector<string> ind_mov;
-			for(int i=0; i<complete_mov.length(); i++)
+			for(int i = 0; i < moves.size(); i=0)
 			{
-				string temp;
-				temp.push_back(complete_mov[i]);
-				ind_mov.push_back(temp);
+				auto r_mv = moves.at(i);
+				if(robotInUse(current_moves, r_mv))
+					break;
+
+				moves.erase(moves.begin());
+				current_moves.push_back(r_mv);
 			}
-			//DIVIDIR AQUI preenchendo o ind_mov
-			for(int i=0; i<ind_mov.size(); i++)
-			{					
-				Vec_t_pos bPoses = performMove(t2, rs2.at(r_nr), dummy, ind_mov[i]);
-				int pos = getRobotPosByNo(r_nr);
-				// newX/newY sao os teus
 
-				int newX,newY;
-				if(ind_mov[i]=="U"||ind_mov[i]=="u")
-				{
-					newX = objects[pos].x;
-					newY = objects[pos].y-1;
-				}
-				else if(ind_mov[i]=="D"||ind_mov[i]=="d")
-				{
-					newX = objects[pos].x;
-					newY = objects[pos].y+1;
-				}
-				else if(ind_mov[i]=="L"||ind_mov[i]=="l")
-				{
-					newX = objects[pos].x-1;
-					newY = objects[pos].y;
-				}
-				else
-				{
-					newX = objects[pos].x+1;
-					newY = objects[pos].y;
-				}
+			for( int i = 0; i < current_moves.size(); i++)
+			{
+				auto r_mv = current_moves.at(i);
+				size_t r_nr = get<0>(r_mv);
+				T_pos box_pos = make_tuple(numeric_limits<size_t>::max(), numeric_limits<size_t>::max());
+				int rob_pos = getRobotPosByNo(r_nr);
+				int cur_robX = objects[rob_pos].x, cur_robY = objects[rob_pos].y;
+				int cur_robXD = objects[rob_pos].drawX, cur_robYD = objects[rob_pos].drawY;
 
-				if(bPoses.size() > 1)
+				ROS_DEBUG("rob_pos = %i", rob_pos);
+				ROS_DEBUG("(x, y) = (%i, %i) ", cur_robX, cur_robY);
+				ROS_DEBUG("(xD, yD) = (%i, %i)", cur_robXD, cur_robYD);
+
+				size_t dx = 0, dy = 0;
+				getMovementDelta(get<1>(r_mv).at(0), dx, dy);
+
+				performOneMove(t2, rs2.at(r_nr), box_pos, get<1>(r_mv).at(0));
+
+				if(get<0>(box_pos) != numeric_limits<size_t>::max())
 				{
-					int newBoxX = get<0>(bPoses[1]); int newBoxY = get<1>(bPoses[1]);
-					int boxPos = getBoxPosByCoord(get<0>(bPoses[0]),get<1>(bPoses[0]));
-					objects[boxPos].x = newBoxX;objects[boxPos].drawX = newBoxX;
-					objects[boxPos].y = newBoxY;objects[boxPos].drawY = newBoxY;
+					int box_pos = getBoxPosByCoord(get<0>(rs2.at(r_nr)), get<1>(rs2.at(r_nr)));
+					objects[box_pos].x += (int) dx;
+					objects[box_pos].drawX += (int) dx;
+
+					objects[box_pos].y += (int) dy;
+					objects[box_pos].drawY += (int) dy;
 				}
 
-				objects[pos].x = newX;objects[pos].drawX = newX;
-				objects[pos].y = newY;objects[pos].drawY = newY;
-				frame.signalUpdate(grid,objects);
-				printBoard(t2);
-				sleep(1);
-//				while(frames<10000)
-//					frames++;
-//				frames=0;
-				cout << "Loop " << i << endl;
+				objects[rob_pos].x += (int) dx;
+				objects[rob_pos].drawX += (int) dx;
+
+				objects[rob_pos].y += (int) dy;
+				objects[rob_pos].drawY += (int) dy;
+
+				get<1>(r_mv).erase(get<1>(r_mv).begin());
+				get<1> (current_moves[i]).erase(get<1> (current_moves[i]).begin());
+				ROS_DEBUG("After erasing 1st char %s", get<1>(r_mv).c_str());
+				if(get<1>(r_mv).size() == 0)
+					current_moves.erase(current_moves.begin()+i);
 			}
-		}
+			frame.signalUpdate(grid,objects);
+			//printBoard(t2);
+			sleep(1);
+
+
+		} while(current_moves.size() > 0);
+
 	}
 }
 
 
+/**
+ *
+ */
 CSoko_Thinker::~CSoko_Thinker(void)
 {
 
 }
 
+
+/**
+ *
+ */
 void CSoko_Thinker::onUpdate(const ros::TimerEvent&)
 {
 	ros::spinOnce();
@@ -167,21 +152,39 @@ void CSoko_Thinker::onUpdate(const ros::TimerEvent&)
 	}
 }
 
+
+
+/**
+ *
+ */
 void CSoko_Thinker::timerCallback(const ros::TimerEvent& e)
 {
-	ROS_ERROR("CALLBACK");
+	ROS_DEBUG("CALLBACK");
 	ROS_INFO("Timer callback!");
 }
 
+
+/**
+ *
+ */
 void CSoko_Thinker::updateMap() {
 	//TODO NAVIGATION LOGIC
 }
 
+
+
+/**
+ *
+ */
 void CSoko_Thinker::update()
 {
 	//	map.drawAll(frame);
 }
 
+
+/**
+ *
+ */
 void CSoko_Thinker::mapCallback(const nav_msgs::OccupancyGrid& msg){
 	this->occ_grid_msg = msg;
 	ROS_INFO("received map!");
@@ -221,6 +224,10 @@ void CSoko_Thinker::mapCallback(const nav_msgs::OccupancyGrid& msg){
 }
 
 
+
+/**
+ *
+ */
 void CSoko_Thinker::callback(const sensor_msgs::LaserScan& msg)
 {
 	laser_scan_msg = msg;
@@ -229,16 +236,16 @@ void CSoko_Thinker::callback(const sensor_msgs::LaserScan& msg)
 	{
 		float real_dist = laser_scan_msg.ranges[i];
 		linear -= cos(laser_scan_msg.angle_min + i * laser_scan_msg.angle_increment)
-        														/ (1.0 + real_dist * real_dist);
+        																		/ (1.0 + real_dist * real_dist);
 		rotational -= sin(laser_scan_msg.angle_min + i * laser_scan_msg.angle_increment)
-        														/ (1.0 + real_dist * real_dist);
+        																		/ (1.0 + real_dist * real_dist);
 	}
 	geometry_msgs::Twist cmd;
 
 	linear /= laser_scan_msg.ranges.size();
 	rotational /= laser_scan_msg.ranges.size();
 
-	//~ ROS_ERROR("%f %f",linear,rotational);
+	//~ ROS_DEBUG("%f %f",linear,rotational);
 
 	if(linear > 0.3)
 	{
@@ -256,6 +263,10 @@ void CSoko_Thinker::callback(const sensor_msgs::LaserScan& msg)
 }
 
 
+
+/**
+ *
+ */
 void CSoko_Thinker::odometryCallback(const nav_msgs::Odometry msg){
 	if(odom_state == 0){
 		odom_msg = msg;
@@ -293,6 +304,11 @@ void CSoko_Thinker::odometryCallback(const nav_msgs::Odometry msg){
 	odom_msg = msg;
 }
 
+
+
+/**
+ *
+ */
 void CSoko_Thinker::loadMap(string mapName)
 {
 	string line;
@@ -357,18 +373,27 @@ void CSoko_Thinker::loadMap(string mapName)
 
 
 
-		
+
 	}
 	else {
 		cout << "Unable to find map file." << endl;
 	}
 }
 
+
+
+/**
+ *
+ */
 void CSoko_Thinker::drawAll()
 {
 
 }
 
+
+/**
+ *
+ */
 int CSoko_Thinker::getRobotPosByNo(int number)
 {
 	int i;
@@ -385,9 +410,13 @@ int CSoko_Thinker::getRobotPosByNo(int number)
 	return i;
 }
 
+
+/**
+ *
+ */
 int CSoko_Thinker::getBoxPosByCoord(int x, int y)
 {
-	int i;
+	int i=-1;
 	for(i=0;i<objects.size();i++)
 	{
 		if(objects[i].isBox && objects[i].x==x && objects[i].y==y)
@@ -396,6 +425,74 @@ int CSoko_Thinker::getBoxPosByCoord(int x, int y)
 		}
 	}
 	return i;
+}
+
+/**
+ *
+ */
+bool CSoko_Thinker::robotInUse(const V_Robot_Move &current_moves, const Robot_Move &evaluate)
+{
+	for(auto r_mv : current_moves)
+	{
+		if(get<0>(r_mv) == get<0>(evaluate))
+			return true;
+	}
+	return false;
+}
+
+/**
+ *
+ */
+void CSoko_Thinker::moveRobotOnce(Robot_Move &r_mv)
+{
+
+}
+
+/**
+ *
+ */
+size_t CSoko_Thinker::matchRobotObj(size_t r_index)
+{
+	for(auto rIndex_oIndex : this->objPos_rob_index)
+	{
+		if(get<1>(rIndex_oIndex) == r_index)
+			return get<0>(rIndex_oIndex);
+	}
+
+	index_matcher im = make_tuple(getRobotPosByNo(r_index), r_index);
+	objPos_rob_index.push_back(im);
+
+	return get<0>(im);
+
+}
+
+/**
+ *
+ */
+size_t CSoko_Thinker::matchObjRobot(size_t obj_index)
+{
+
+	for(auto rIndex_oIndex : this->objPos_rob_index)
+		{
+			if(get<0>(rIndex_oIndex) == obj_index)
+				return get<1>(rIndex_oIndex);
+		}
+
+	return numeric_limits<size_t>::max();
+}
+
+
+
+/**
+ *
+ */
+vector<size_t> CSoko_Thinker::robotsToMoveNow()
+{
+	vector<size_t> robots;
+	for(auto r_mv : current_moves)
+		robots.push_back(get<0>(r_mv));
+
+	return robots;
 }
 
 }

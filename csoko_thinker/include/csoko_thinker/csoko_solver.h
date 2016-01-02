@@ -16,6 +16,7 @@
 #include <tuple>
 #include <array>
 #include <map>
+#include <limits>
 #include <boost/algorithm/string.hpp>
 #include <boost/unordered_set.hpp>
 
@@ -24,7 +25,7 @@ typedef std::vector<TableRow> Table;
 typedef std::tuple<size_t, size_t> T_pos;
 typedef std::vector<T_pos> Vec_t_pos;
 typedef std::tuple<size_t, std::string> Robot_Move;
-typedef std::vector<Robot_Move > Moves_R;
+typedef std::vector<Robot_Move > V_Robot_Move;
 
 struct Board {
 	Table sData, dData;
@@ -80,14 +81,27 @@ void negateInterest(Table &t, const T_pos &b, const T_pos &d);
 
 
 /**
- *
+ * This method performs all movements given in @sol to a robot @r and box @b in a sokoban map @t
  */
-Vec_t_pos performMove(Table &t, T_pos &r, T_pos &b, const std::string &sol, bool isPrint=false);
+void performAllMoves(Table &t, T_pos &r, T_pos &b, const std::string &sol, bool isPrint=false);
+
 
 /**
  *
  */
-bool turn(const Table t, const Vec_t_pos rs, const Vec_t_pos bs, const Vec_t_pos ds, Moves_R &moves, size_t robot_nr);
+void performOneMove(Table &t, T_pos &r, T_pos &b, const char &c);
+
+
+/**
+ *
+ */
+void getMovementDelta(char c, size_t &x, size_t &y);
+
+
+/**
+ *
+ */
+bool turn(const Table t, const Vec_t_pos rs, const Vec_t_pos bs, const Vec_t_pos ds, V_Robot_Move &moves, size_t robot_nr);
 
 
 /**

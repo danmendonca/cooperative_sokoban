@@ -243,51 +243,70 @@ void negateInterest(Table &t, const T_pos &b, const T_pos &d)
 
 
 
-Vec_t_pos performMove(Table &t, T_pos &r, T_pos &b, const string &sol, bool isPrint)
+void performAllMoves(Table &t, T_pos &r, T_pos &b, const string &sol, bool isPrint)
 {
-	Vec_t_pos bPoses;
-	int r_x = get<0>(r), r_y = get<1>(r);
-	int newX = 0, newY = 0;
+	//Vec_t_pos bPoses;
 	for(auto c: sol)
 	{
-		if(c == 'd' || c == 'D')
-			newY = 1;
-		else if(c == 'u' || c == 'U')
-			newY= -1;
-		else newY=0;
-
-		if(c == 'l' || c == 'L')
-			newX= -1;
-		else if(c == 'r' || c == 'R')
-			newX = 1;
-		else newX=0;
-
-		t.at(r_y).at(r_x) = ' ';
-		r_y += newY;
-		r_x += newX;
-
-		if(t.at(r_y).at(r_x) == '$')
-		{
-			bPoses.push_back(make_tuple(r_x,r_y));
-			t.at(r_y +newY).at(r_x + newX) = '$';
-		}
-
-		t.at(r_y).at(r_x) = '@';
+		performOneMove(t, r, b, c);
 
 		if(isPrint)
 			printBoard(t);
 	}
+	//bPoses.push_back(b);
+
+	//return bPoses;
+}
+
+void performOneMove(Table &t, T_pos &r, T_pos &b, const char &c)
+{
+	int r_x = get<0>(r), r_y = get<1>(r);
+	int newX = 0, newY = 0;
+
+	if(c == 'd' || c == 'D') newY = 1;
+	else if(c == 'u' || c == 'U') newY= -1;
+	else newY=0;
+
+	if(c == 'l' || c == 'L') newX= -1;
+	else if(c == 'r' || c == 'R') newX = 1;
+	else newX=0;
+
+	//clean robot previous position
+	t.at(r_y).at(r_x) = ' ';
+
+	//update robot coord to next pos
+	r_y += newY;
+	r_x += newX;
+
+	//verify if next robot pos has box, and move it if has
+	if(t.at(r_y).at(r_x) == '$')
+	{
+		//bPoses.push_back(make_tuple(r_x,r_y));
+		t.at(r_y +newY).at(r_x + newX) = '$';
+		get<0>(b) = r_x + newX;
+		get<1>(b) = r_y + newY;
+	}
+
+	//place robot in new coords
+	t.at(r_y).at(r_x) = '@';
+
 	get<0>(r) = r_x;
 	get<1>(r) = r_y;
-	get<0>(b) = r_x + newX;
-	get<1>(b) = r_y + newY;
-	bPoses.push_back(b);
+}
 
-	return bPoses;
+void getMovementDelta(char c, size_t &x, size_t &y)
+{
+	if(c == 'd' || c == 'D') y = 1;
+	else if(c == 'u' || c == 'U') y= -1;
+	else y=0;
+
+	if(c == 'l' || c == 'L') x= -1;
+	else if(c == 'r' || c == 'R') x = 1;
+	else x=0;
 }
 
 
-bool turn(const Table t, const Vec_t_pos rs, const Vec_t_pos bs, const Vec_t_pos ds, Moves_R &moves, size_t robot_nr)
+bool turn(const Table t, const Vec_t_pos rs, const Vec_t_pos bs, const Vec_t_pos ds, V_Robot_Move &moves, size_t robot_nr)
 {
 	if(bs.size() == 0)
 		return true;
@@ -320,7 +339,7 @@ bool turn(const Table t, const Vec_t_pos rs, const Vec_t_pos bs, const Vec_t_pos
 					continue; //can't solve
 
 				allAsBefore(t2, rs2, bs2, ds2);
-				performMove(t2, rs2.at(robot_nr_now), bs2.at(i), sol);
+				performAllMoves(t2, rs2.at(robot_nr_now), bs2.at(i), sol);
 				negateInterest(t2, bs2.at(i), ds2.at(j));
 
 				//printBoard(t2);
@@ -438,5 +457,5 @@ int main() {
 
 	return 0;
 }
-*/
+ */
 

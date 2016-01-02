@@ -10,10 +10,13 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
+//#include <unistd.h>
+#include <tuple>
 #include <SFML/Graphics.hpp>
 
 
 #include <ros/package.h>
+#include <ros/console.h>
 #include <stdr_msgs/RobotIndexedVectorMsg.h>
 #include <geometry_msgs/Pose2D.h>
 #include <geometry_msgs/Point.h>
@@ -28,6 +31,11 @@
 #include "csoko_thinker/csoko_tile.h"
 namespace csoko_thinker
 {
+
+
+typedef std::tuple<size_t, size_t> index_matcher;
+
+
 class CSoko_Thinker
 {
 private:
@@ -37,11 +45,10 @@ private:
 
 
 	std::vector<CSokoObject> objects;
-	std::vector<std::tuple<size_t, std::string> > moves;
+	std::vector<index_matcher> objPos_rob_index;
+	std::vector<std::tuple<size_t, std::string> > moves, current_moves;
 	std::vector<std::tuple<size_t, size_t> > robots_pos, boxes_pos, deliverys_pos;
 	std::vector<std::vector<char> > map_table;
-
-	const static bool CSOKO_THINKER_DEBUG = true;
 	int odom_state;
 	int8_t **my_map;
 	int map_height, map_width;
@@ -97,6 +104,7 @@ private:
 
 
 public:
+	const static bool CSOKO_THINKER_DEBUG = true;
 	CSoko_Thinker();
 	CSoko_Thinker(int argc,char **argv);
 
@@ -117,6 +125,11 @@ public:
 	void drawAll();
 	int getBoxPosByCoord(int x, int y);
 	int getRobotPosByNo(int number);
+	bool robotInUse(const std::vector<std::tuple<size_t, std::string> > &mvs, const std::tuple<size_t, std::string> &mv);
+	void moveRobotOnce(std::tuple<size_t, std::string> &r_mv);
+	size_t matchRobotObj(size_t r_index);
+	size_t matchObjRobot(size_t obj_index);
+	std::vector<size_t> robotsToMoveNow();
 
 
 };

@@ -21,30 +21,30 @@ void CSokoFrame::setPathToResources(std::string p)
 
 CSokoFrame::CSokoFrame()
 {
-	ROS_ERROR("WINDOW CREATE");
+	ROS_DEBUG("WINDOW CREATE");
 	window.create(sf::VideoMode( 500, 500 ), "CSOKO");
-	ROS_ERROR("BEFORE FRAME LOAD");
+	ROS_DEBUG("BEFORE FRAME LOAD");
 
 	//LOAD GOAL
 	string goalPath = path_to_res +"/images/goal.png";
 	if (!goal.loadFromFile(goalPath))
 	{
-		ROS_ERROR("COULD NOT LOAD MAP GRAPHICS");
+		ROS_DEBUG("COULD NOT LOAD MAP GRAPHICS");
 	}
 	//LOAD BOX
 	string boxPath = path_to_res +"/images/box.png";
 	if (!boxIcon.loadFromFile(boxPath))
 	{
-		ROS_ERROR("COULD NOT LOAD BOX GRAPHICS");
+		ROS_DEBUG("COULD NOT LOAD BOX GRAPHICS");
 	}
 	//LOAD ROBOT
 	string robotPath = path_to_res +"/images/robot.png";
 	if (!robotIcon.loadFromFile(robotPath))
 	{
-		ROS_ERROR("COULD NOT LOAD ROBOT GRAPHICS");
+		ROS_DEBUG("COULD NOT LOAD ROBOT GRAPHICS");
 	}
 
-	ROS_ERROR("FRAME IS LOADED");
+	ROS_DEBUG("FRAME IS LOADED");
 }
 
 void CSokoFrame::closeWindow()
