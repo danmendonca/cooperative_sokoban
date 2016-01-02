@@ -417,6 +417,15 @@ void CSoko_Thinker::moveRobotOnce(size_t r_index)
 		int dx = 0, dy = 0;
 		getMovementDelta(get<1>(r_mv).at(0), dx, dy);
 
+		size_t future_x = objects[rob_pos].x + dx;
+		size_t future_y = objects[rob_pos].y + dy;
+
+		//is this robot the owner (or can be) of next tile?
+		if(!grid[future_y][future_x].isLockedTo(r_nr))
+			if(!lockPath(r_mv))
+				break;
+
+
 		performOneMove(map_table, robots_pos.at(r_nr), box_pos, get<1>(r_mv).at(0));
 
 		if(get<0>(box_pos) != numeric_limits<size_t>::max())
@@ -523,16 +532,14 @@ bool CSoko_Thinker::lockPath(const Robot_Move &r_mv)
 bool CSoko_Thinker::lockPath(const size_t &r_nr, const XY_COORD &pos, string &mv)
 {
 	//no more tiles to lock?
-	if(mv.size() == 0)
-		return true;
+	if(mv.size() == 0) return true;
 
 	int dx =0, dy= 0;
 	getMovementDelta(mv.at(0), dx, dy);
 	size_t new_x = get<0>(pos) + dx, new_y =get<1>(pos) + dy;
 
 	//is this robot is able to lock the next tile?
-	if(!grid[new_y][new_x].increaseLock(r_nr))
-		return false;
+	if(!grid[new_y][new_x].increaseLock(r_nr)) return false;
 
 	XY_COORD new_pos = make_tuple(new_x, new_y);
 	mv.erase(mv.begin());
@@ -543,7 +550,6 @@ bool CSoko_Thinker::lockPath(const size_t &r_nr, const XY_COORD &pos, string &mv
 		grid[new_y][new_x].decreaseLock(r_nr);
 		return false;
 	}
-
 
 	return true;
 
