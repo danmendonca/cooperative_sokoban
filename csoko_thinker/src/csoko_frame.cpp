@@ -35,16 +35,16 @@ CSokoFrame::CSokoFrame()
 	string boxPath = path_to_res +"/images/box.png";
 	if (!boxIcon.loadFromFile(boxPath))
 	{
-		ROS_DEBUG("COULD NOT LOAD BOX GRAPHICS");
+		ROS_ERROR("COULD NOT LOAD BOX GRAPHICS");
 	}
 	//LOAD ROBOT
 	string robotPath = path_to_res +"/images/robot.png";
 	if (!robotIcon.loadFromFile(robotPath))
 	{
-		ROS_DEBUG("COULD NOT LOAD ROBOT GRAPHICS");
+		ROS_ERROR("COULD NOT LOAD ROBOT GRAPHICS");
 	}
 
-	ROS_DEBUG("FRAME IS LOADED");
+	ROS_INFO("FRAME IS LOADED");
 }
 
 void CSokoFrame::closeWindow()

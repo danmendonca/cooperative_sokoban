@@ -1,5 +1,4 @@
 #include "csoko_thinker/csoko_thinker.h"
-#include "csoko_thinker/csoko_solver.h"
 using namespace csoko_thinker;
 using namespace std;
 
@@ -37,7 +36,7 @@ CSoko_Thinker::CSoko_Thinker(int argc,char **argv)
 
 	CSokoFrame::setPathToResources(res_path);
 
-	ROS_DEBUG("MAP NAME: %s\n", name.c_str());
+	ROS_INFO("MAP NAME: %s\n", name.c_str());
 
 	CSokoFrame::setPathToResources(res_path);
 
@@ -100,7 +99,8 @@ void CSoko_Thinker::onUpdate(const ros::TimerEvent&)
 	updateMap();
 	update();
 	if (!ros::ok())
-	{void onUpdate();
+	{
+		void onUpdate();
 	}
 }
 
@@ -187,10 +187,8 @@ void CSoko_Thinker::callback(const sensor_msgs::LaserScan& msg)
 	for(unsigned int i = 0 ; i < laser_scan_msg.ranges.size() ; i++)
 	{
 		float real_dist = laser_scan_msg.ranges[i];
-		linear -= cos(laser_scan_msg.angle_min + i * laser_scan_msg.angle_increment)
-        																								/ (1.0 + real_dist * real_dist);
-		rotational -= sin(laser_scan_msg.angle_min + i * laser_scan_msg.angle_increment)
-        																								/ (1.0 + real_dist * real_dist);
+		linear -= cos(laser_scan_msg.angle_min + i * laser_scan_msg.angle_increment) / (1.0 + real_dist * real_dist);
+		rotational -= sin(laser_scan_msg.angle_min + i * laser_scan_msg.angle_increment) / (1.0 + real_dist * real_dist);
 	}
 	geometry_msgs::Twist cmd;
 
@@ -511,6 +509,44 @@ vector<size_t> CSoko_Thinker::robotsToMoveNow()
 		robots.push_back(get<0>(r_mv));
 
 	return robots;
+}
+
+bool CSoko_Thinker::lockPath(const Robot_Move &r_mv)
+{
+	size_t r_nr = get<0>(r_mv);
+	string mv(get<1>(r_mv));
+	XY_COORD pos = robots_pos[r_nr];
+
+	return lockPath(r_nr, pos, mv);
+}
+
+bool CSoko_Thinker::lockPath(const size_t &r_nr, const XY_COORD &pos, string &mv)
+{
+	//no more tiles to lock?
+	if(mv.size() == 0)
+		return true;
+
+	int dx =0, dy= 0;
+	getMovementDelta(mv.at(0), dx, dy);
+	size_t new_x = get<0>(pos) + dx, new_y =get<1>(pos) + dy;
+
+	//is this robot is able to lock the next tile?
+	if(!grid[new_y][new_x].increaseLock(r_nr))
+		return false;
+
+	XY_COORD new_pos = make_tuple(new_x, new_y);
+	mv.erase(mv.begin());
+
+	//is this robot able to lock all tiles after this?
+	if(!lockPath(r_nr, new_pos, mv))
+	{
+		grid[new_y][new_x].decreaseLock(r_nr);
+		return false;
+	}
+
+
+	return true;
+
 }
 
 }

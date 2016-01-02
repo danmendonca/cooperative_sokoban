@@ -133,7 +133,8 @@ public:
 	size_t matchObjRobot(size_t obj_index);
 	std::vector<size_t> robotsToMoveNow();
 	void updateCurrentMovements();
-
+	bool lockPath(const Robot_Move &r_mv);
+	bool lockPath(const size_t &r_nr, const XY_COORD &xy, std::string &movement);
 
 };
 }
