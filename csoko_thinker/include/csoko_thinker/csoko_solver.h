@@ -95,7 +95,7 @@ void performOneMove(Table &t, T_pos &r, T_pos &b, const char &c);
 /**
  *
  */
-void getMovementDelta(char c, size_t &x, size_t &y);
+void getMovementDelta(char c, int &x, int &y);
 
 
 /**

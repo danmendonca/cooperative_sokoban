@@ -97,7 +97,7 @@ void CSokoFrame::draw()
 				{
 					if(goal.getSize().x != 0)
 					{
-						cout << "Drawing goal" << endl;
+						//cout << "Drawing goal" << endl;
 						goalSprite.setTexture(goal);
 						goalSprite.setPosition(sf::Vector2f(j*16, i*16));
 						window.draw(goalSprite);

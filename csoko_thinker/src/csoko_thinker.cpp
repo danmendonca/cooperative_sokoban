@@ -57,74 +57,26 @@ CSoko_Thinker::CSoko_Thinker(int argc,char **argv)
 		exit(-1);
 	}
 
+	updateCurrentMovements();
+
 	if(CSOKO_THINKER_DEBUG)
 	{
-		Table t2(map_table);
-		Vec_t_pos rs2(robots_pos), bs2(boxes_pos), ds2(deliverys_pos);
-		T_pos dummy = make_tuple(0,0);
-
-		printBoard(t2);
-
-		V_Robot_Move current_moves;
 
 		do
 		{
-			for(int i = 0; i < moves.size(); i=0)
-			{
-				auto r_mv = moves.at(i);
-				if(robotInUse(current_moves, r_mv))
-					break;
 
-				moves.erase(moves.begin());
-				current_moves.push_back(r_mv);
-			}
+			for(auto r_nr : robotsToMoveNow())
+				moveRobotOnce(r_nr);
 
-			for( int i = 0; i < current_moves.size(); i++)
-			{
-				auto r_mv = current_moves.at(i);
-				size_t r_nr = get<0>(r_mv);
-				T_pos box_pos = make_tuple(numeric_limits<size_t>::max(), numeric_limits<size_t>::max());
-				int rob_pos = getRobotPosByNo(r_nr);
-				int cur_robX = objects[rob_pos].x, cur_robY = objects[rob_pos].y;
-				int cur_robXD = objects[rob_pos].drawX, cur_robYD = objects[rob_pos].drawY;
 
-				ROS_DEBUG("rob_pos = %i", rob_pos);
-				ROS_DEBUG("(x, y) = (%i, %i) ", cur_robX, cur_robY);
-				ROS_DEBUG("(xD, yD) = (%i, %i)", cur_robXD, cur_robYD);
-
-				size_t dx = 0, dy = 0;
-				getMovementDelta(get<1>(r_mv).at(0), dx, dy);
-
-				performOneMove(t2, rs2.at(r_nr), box_pos, get<1>(r_mv).at(0));
-
-				if(get<0>(box_pos) != numeric_limits<size_t>::max())
-				{
-					int box_pos = getBoxPosByCoord(get<0>(rs2.at(r_nr)), get<1>(rs2.at(r_nr)));
-					objects[box_pos].x += (int) dx;
-					objects[box_pos].drawX += (int) dx;
-
-					objects[box_pos].y += (int) dy;
-					objects[box_pos].drawY += (int) dy;
-				}
-
-				objects[rob_pos].x += (int) dx;
-				objects[rob_pos].drawX += (int) dx;
-
-				objects[rob_pos].y += (int) dy;
-				objects[rob_pos].drawY += (int) dy;
-
-				get<1>(r_mv).erase(get<1>(r_mv).begin());
-				get<1> (current_moves[i]).erase(get<1> (current_moves[i]).begin());
-				ROS_DEBUG("After erasing 1st char %s", get<1>(r_mv).c_str());
-				if(get<1>(r_mv).size() == 0)
-					current_moves.erase(current_moves.begin()+i);
-			}
 			frame.signalUpdate(grid,objects);
 			//printBoard(t2);
 			sleep(1);
 
 
 		} while(current_moves.size() > 0);
+
+		ROS_DEBUG("NO MORE MOVEMENTS");
 
 	}
 }
@@ -236,9 +188,9 @@ void CSoko_Thinker::callback(const sensor_msgs::LaserScan& msg)
 	{
 		float real_dist = laser_scan_msg.ranges[i];
 		linear -= cos(laser_scan_msg.angle_min + i * laser_scan_msg.angle_increment)
-        																		/ (1.0 + real_dist * real_dist);
+        																								/ (1.0 + real_dist * real_dist);
 		rotational -= sin(laser_scan_msg.angle_min + i * laser_scan_msg.angle_increment)
-        																		/ (1.0 + real_dist * real_dist);
+        																								/ (1.0 + real_dist * real_dist);
 	}
 	geometry_msgs::Twist cmd;
 
@@ -443,9 +395,75 @@ bool CSoko_Thinker::robotInUse(const V_Robot_Move &current_moves, const Robot_Mo
 /**
  *
  */
-void CSoko_Thinker::moveRobotOnce(Robot_Move &r_mv)
+void CSoko_Thinker::moveRobotOnce(size_t r_index)
 {
 
+	for( int i = 0; i < current_moves.size(); i++)
+	{
+		auto r_mv = current_moves.at(i);
+		int r_nr = get<0>(r_mv);
+
+		if(r_nr != r_index)
+			continue;
+
+
+		T_pos box_pos = make_tuple(numeric_limits<size_t>::max(), numeric_limits<size_t>::max());
+		int rob_pos = matchRobotObj(r_nr);
+		int cur_robX = objects[rob_pos].x, cur_robY = objects[rob_pos].y;
+		int cur_robXD = objects[rob_pos].drawX, cur_robYD = objects[rob_pos].drawY;
+
+		ROS_DEBUG("r:nr= %i and rob_pos = %i", r_nr, rob_pos);
+		ROS_DEBUG("(x, y) = (%i, %i) ", cur_robX, cur_robY);
+		ROS_DEBUG("(xD, yD) = (%i, %i)", cur_robXD, cur_robYD);
+
+		int dx = 0, dy = 0;
+		getMovementDelta(get<1>(r_mv).at(0), dx, dy);
+
+		performOneMove(map_table, robots_pos.at(r_nr), box_pos, get<1>(r_mv).at(0));
+
+		if(get<0>(box_pos) != numeric_limits<size_t>::max())
+		{
+			int box_pos = getBoxPosByCoord(get<0>(robots_pos.at(r_nr)), get<1>(robots_pos.at(r_nr)));
+			objects[box_pos].x += dx;
+			objects[box_pos].drawX += dx;
+
+			objects[box_pos].y += dy;
+			objects[box_pos].drawY += dy;
+		}
+
+		objects[rob_pos].x += dx;
+		objects[rob_pos].drawX += dx;
+
+		objects[rob_pos].y += dy;
+		objects[rob_pos].drawY += dy;
+
+		get<1>(r_mv).erase(get<1>(r_mv).begin());
+		get<1> (current_moves[i]).erase(get<1> (current_moves[i]).begin());
+
+		if(get<1>(r_mv).size() == 0)
+			current_moves.erase(current_moves.begin()+i);
+
+
+		int debugValue = (int)current_moves.size();
+		ROS_DEBUG("current_moves size = %i", debugValue );
+
+	}
+
+
+	updateCurrentMovements();
+}
+
+void CSoko_Thinker::updateCurrentMovements()
+{
+	for(int i = 0; i < moves.size(); i=0)
+	{
+		auto r_mv = moves.at(i);
+		if(robotInUse(current_moves, r_mv))
+			break;
+
+		moves.erase(moves.begin());
+		current_moves.push_back(r_mv);
+	}
 }
 
 /**
@@ -473,10 +491,10 @@ size_t CSoko_Thinker::matchObjRobot(size_t obj_index)
 {
 
 	for(auto rIndex_oIndex : this->objPos_rob_index)
-		{
-			if(get<0>(rIndex_oIndex) == obj_index)
-				return get<1>(rIndex_oIndex);
-		}
+	{
+		if(get<0>(rIndex_oIndex) == obj_index)
+			return get<1>(rIndex_oIndex);
+	}
 
 	return numeric_limits<size_t>::max();
 }

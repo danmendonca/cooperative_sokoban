@@ -294,15 +294,15 @@ void performOneMove(Table &t, T_pos &r, T_pos &b, const char &c)
 	get<1>(r) = r_y;
 }
 
-void getMovementDelta(char c, size_t &x, size_t &y)
+void getMovementDelta(char c, int &dx, int &dy)
 {
-	if(c == 'd' || c == 'D') y = 1;
-	else if(c == 'u' || c == 'U') y= -1;
-	else y=0;
+	if(c == 'd' || c == 'D') dy = 1;
+	else if(c == 'u' || c == 'U') dy= -1;
+	else dy=0;
 
-	if(c == 'l' || c == 'L') x= -1;
-	else if(c == 'r' || c == 'R') x = 1;
-	else x=0;
+	if(c == 'l' || c == 'L') dx= -1;
+	else if(c == 'r' || c == 'R') dx = 1;
+	else dx=0;
 }
 
 
