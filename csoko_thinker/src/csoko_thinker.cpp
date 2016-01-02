@@ -428,6 +428,8 @@ void CSoko_Thinker::moveRobotOnce(size_t r_index)
 
 		performOneMove(map_table, robots_pos.at(r_nr), box_pos, get<1>(r_mv).at(0));
 
+		grid[objects[rob_pos].y][objects[rob_pos].x].decreaseLock(r_nr);
+
 		if(get<0>(box_pos) != numeric_limits<size_t>::max())
 		{
 			int box_pos = getBoxPosByCoord(get<0>(robots_pos.at(r_nr)), get<1>(robots_pos.at(r_nr)));
@@ -438,10 +440,10 @@ void CSoko_Thinker::moveRobotOnce(size_t r_index)
 			objects[box_pos].drawY += dy;
 		}
 
-		objects[rob_pos].x += dx;
+		objects[rob_pos].x = future_x;
 		objects[rob_pos].drawX += dx;
 
-		objects[rob_pos].y += dy;
+		objects[rob_pos].y = future_y;
 		objects[rob_pos].drawY += dy;
 
 		get<1>(r_mv).erase(get<1>(r_mv).begin());
