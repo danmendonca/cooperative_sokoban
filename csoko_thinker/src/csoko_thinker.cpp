@@ -68,9 +68,9 @@ CSoko_Thinker::CSoko_Thinker(int argc,char **argv)
 				moveRobotOnce(r_nr);
 
 
-			frame.signalUpdate(grid,objects);
+			//frame.signalUpdate(grid,objects);
 			//printBoard(t2);
-			sleep(1);
+			//sleep(1);
 
 
 		} while(current_moves.size() > 0);
@@ -430,21 +430,78 @@ void CSoko_Thinker::moveRobotOnce(size_t r_index)
 
 		grid[objects[rob_pos].y][objects[rob_pos].x].decreaseLock(r_nr);
 
+		float percentX=0.00, percentY=0.00;
+		float incdX=0.00, incdY=0.00;
+		bool incremented = false;
+		int box_l_pos = 0;
+		bool boxFound = false;
 		if(get<0>(box_pos) != numeric_limits<size_t>::max())
 		{
-			int box_pos = getBoxPosByCoord(get<0>(robots_pos.at(r_nr)), get<1>(robots_pos.at(r_nr)));
-			objects[box_pos].x += dx;
-			objects[box_pos].drawX += dx;
-
-			objects[box_pos].y += dy;
-			objects[box_pos].drawY += dy;
+			box_l_pos = getBoxPosByCoord(get<0>(robots_pos.at(r_nr)), get<1>(robots_pos.at(r_nr)));
+			boxFound = true;
 		}
+		while(true)
+		{
+			if(percentX<(float)abs(dx) && percentY<(float)abs(dy))
+			{
+				percentX+=0.01;
+				percentY+=0.01;
+				incdX=0.01;
+				if(dx <0)
+					incdX*=-1;
+				incdY=0.01;
+				if(dy <0)
+					incdY*=-1;
+			}
+			else if(percentX<(float)abs(dx))
+			{
+				percentX+=0.01;
+				incdX=0.01;
+				if(dx <0)
+					incdX*=-1;
+				incdY=0.0;
+			}
+			else if(percentY<(float)abs(dy))
+			{
+				percentY+=0.01;
+				incdY=0.01;
+				if(dy <0)
+					incdY*=-1;
+				incdX=0.0;
+			}
+			else if(percentX>=(float)abs(dx) && percentY>=(float)abs(dy))
+				break;
+			
+			if(boxFound)
+			{
+				if(!incremented)
+				{
+					objects[box_l_pos].x += dx;
+				}
+//				objects[box_l_pos].drawX += dx;
+				objects[box_l_pos].drawX += incdX;
 
-		objects[rob_pos].x = future_x;
-		objects[rob_pos].drawX += dx;
+				if(!incremented)
+				{
+					objects[box_l_pos].y += dy;
 
-		objects[rob_pos].y = future_y;
-		objects[rob_pos].drawY += dy;
+				}
+//				objects[box_l_pos].drawY += dy;
+				objects[box_l_pos].drawY += incdY;
+				incremented=true;
+			}
+
+			objects[rob_pos].x = future_x;
+//			objects[rob_pos].drawX += dx;
+			objects[rob_pos].drawX += incdX;
+
+			objects[rob_pos].y = future_y;
+//			objects[rob_pos].drawY += dy;
+			objects[rob_pos].drawY += incdY;
+
+			frame.signalUpdate(grid,objects);
+			sleep(0.8);
+		}
 
 		get<1>(r_mv).erase(get<1>(r_mv).begin());
 		get<1> (current_moves[i]).erase(get<1> (current_moves[i]).begin());

@@ -117,7 +117,7 @@ void CSokoFrame::draw()
 					dynSprite.setTexture(boxIcon);
 				else
 					dynSprite.setTexture(robotIcon);
-				dynSprite.setPosition(sf::Vector2f(objects[j].drawX*16, objects[j].drawY*16));
+				dynSprite.setPosition(sf::Vector2f((float)objects[j].drawX*16.00, (float)objects[j].drawY*16.00));
 				window.draw(dynSprite);
 			}
 		}

@@ -21,7 +21,7 @@ namespace csoko_thinker{
 	{
 	public:
 		int x,y;
-		double drawX, drawY;
+		float drawX, drawY;
 		bool isBox;
 
 		CSokoObject(int x, int y, bool isBox);
