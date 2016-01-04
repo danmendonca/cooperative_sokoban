@@ -1,11 +1,3 @@
 <launch>
-	
-
-	
 	<node pkg="csoko_thinker" type="csoko_thinker" name="csoko_thinker_node_" output="screen" args="$(find csoko_resources) /maps/sokobanMap1" />
-	
-
-
-
-	
 </launch>
