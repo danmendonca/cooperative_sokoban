@@ -33,7 +33,7 @@ namespace csoko_thinker{
 		if(robot_nr != r_nr)
 			return false;
 
-		lock_level--;
+		lock_level = (lock_level < 0) ? 0 : lock_level -1;
 		if(lock_level == 0)
 			robot_nr = numeric_limits<size_t>::max();
 

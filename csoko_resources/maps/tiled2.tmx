@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="20" height="20" tilewidth="8" tileheight="8">
+ <tileset firstgid="1" name="pure_black" tilewidth="8" tileheight="8">
+  <image source="../../../../../Documents/tiled/pure_black.png" width="50" height="50"/>
+ </tileset>
+ <tileset firstgid="37" name="pure_white" tilewidth="8" tileheight="8">
+  <image source="../../../../../Documents/tiled/pure_white.png" width="50" height="50"/>
+ </tileset>
+ <layer name="Tile Layer 1" width="20" height="20">
+  <data encoding="base64" compression="zlib">
+   eJxjZGBgYKQy1kHC6HxsGJeaUfMGzjxs8YnLPEJpgJA9xKgdLOZRYv5AmUdJfAxV84hJk5Skl6FsHjUxACh+MXA=
+  </data>
+ </layer>
+</map>
