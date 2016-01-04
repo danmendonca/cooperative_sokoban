@@ -373,10 +373,10 @@ int CSoko_Thinker::getBoxPosByCoord(int x, int y)
 	{
 		if(objects[i].isBox && objects[i].x==x && objects[i].y==y)
 		{
-			break;
+			return i;
 		}
 	}
-	return i;
+	return -1;
 }
 
 /**

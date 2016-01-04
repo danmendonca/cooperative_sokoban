@@ -18,6 +18,7 @@ CSokoObject::CSokoObject(int x, int y, bool isBox, bool mvC)
 	toMoveY=y;
 	mvX = false;
 	mvY = false;
+	delta = 0;
 }
 
 void CSokoObject::updateDrawCoord()
@@ -31,31 +32,36 @@ void CSokoObject::updateDrawCoord()
 
 	if(mvX)
 	{
-		drawX += 0.1;
+		drawX += (drawX > toMoveX) ? -0.01 : 0.01;
 		enoughY = true;
 
 		if(toMoveX > drawX)
 		{
-			enoughX = ((toMoveX - drawX) < 0.1) ? true : false;
+			enoughX = ((toMoveX - drawX) < 0.01) ? true : false;
+			delta = 1;
 		}
 		else
 		{
-			enoughX = ((drawX - toMoveX) < 0.1) ? true : false;
+			enoughX = ((drawX - toMoveX) < 0.01) ? true : false;
+			delta = -1;
 		}
 
 	}
 	if(mvY)
 	{
 		enoughX = true;
-		drawY += 0.1;
+
+		drawY += (drawY > toMoveY) ? -0.01 : 0.01;
 
 		if(toMoveY > drawY)
 		{
-			enoughY = ((toMoveX - drawY) < 0.1) ? true : false;
+			delta = 1;
+			enoughY = ((toMoveY - drawY) < 0.01) ? true : false;
 		}
 		else
 		{
-			enoughY = ((drawY - toMoveY) < 0.1) ? true : false;
+
+			enoughY = ((drawY - toMoveY) < 0.01) ? true : false;
 		}
 	}
 
@@ -66,22 +72,24 @@ void CSokoObject::updateDrawCoord()
 		this->mState = STATE_MOV_FINISHED;
 
 		if(mvX)
-			x += 1;
+			x += delta;
 		if(mvY)
-			y+=1;
+			y+=delta;
 		mvX=false;
 		mvY=false;
+		delta = 0;
+
 		ROS_DEBUG("movement complete");
-		sleep(3);
+		//sleep(3);
 	}
 }
 
 void CSokoObject::addMove(float mx, float my)
 {
 	mState = STATE_MOV_PROGRESS;
-	mvX = (mx > 0) ? true : false;
-	mvY = (my > 0) ? true : false;
-	toMoveX = x + mx;
-	toMoveY = y + my;
+	mvX = (mx != 0) ? true : false;
+	mvY = (my != 0) ? true : false;
+	toMoveX = drawX + mx;
+	toMoveY = drawY + my;
 }
 }

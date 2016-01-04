@@ -31,7 +31,7 @@ namespace csoko_thinker{
 		float toMoveX;
 		float toMoveY;
 		int mState;
-
+		int delta;
 		void updateDrawCoord();
 		void addMove(float mx, float my);
 
