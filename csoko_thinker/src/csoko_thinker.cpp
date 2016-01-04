@@ -398,6 +398,9 @@ bool CSoko_Thinker::robotInUse(const V_Robot_Move &current_moves, const Robot_Mo
 void CSoko_Thinker::moveRobotOnce(size_t r_index)
 {
 
+	updateCurrentMovements();
+	ROS_WARN("current_movements size = %i", (int) current_moves.size());
+
 	for( int i = 0; i < current_moves.size(); i++)
 	{
 		auto r_mv = current_moves.at(i);
@@ -422,8 +425,14 @@ void CSoko_Thinker::moveRobotOnce(size_t r_index)
 
 		//is this robot the owner (or can be) of next tile?
 		if(!grid[future_y][future_x].isLockedTo(r_nr))
+		{
 			if(!lockPath(r_mv))
+			{
+				ROS_WARN("COULD NOT LOCK PATH TO ME. r_nr: %i", r_nr);
 				break;
+			}
+		}
+
 
 
 		int box_index = getBoxPosByCoord(future_x, future_y);
@@ -549,14 +558,16 @@ void CSoko_Thinker::moveRobotOnce(size_t r_index)
 
 void CSoko_Thinker::updateCurrentMovements()
 {
-	for(int i = 0; i < moves.size(); i=0)
+	for(int i = 0; i < moves.size();)
 	{
 		auto r_mv = moves.at(i);
-		if(robotInUse(current_moves, r_mv))
-			break;
+		if(robotInUse(current_moves, r_mv)){
+			i++;
+			continue;
+		}
 
-		moves.erase(moves.begin());
-		current_moves.push_back(r_mv);
+		current_moves.push_back(moves[i]);
+		moves.erase(moves.begin() + i);
 	}
 }
 
