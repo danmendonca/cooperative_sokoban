@@ -68,7 +68,7 @@ CSoko_Thinker::CSoko_Thinker(int argc,char **argv)
 				moveRobotOnce(r_nr);
 
 			frame.signalUpdate(grid,objects);
-			sleep(0.2);
+			//sleep(0.2);
 
 			//frame.signalUpdate(grid,objects);
 			//printBoard(t2);

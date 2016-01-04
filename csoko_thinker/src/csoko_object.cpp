@@ -60,7 +60,7 @@ void CSokoObject::updateDrawCoord()
 		}
 		else
 		{
-
+			delta = -1;
 			enoughY = ((drawY - toMoveY) < 0.01) ? true : false;
 		}
 	}
