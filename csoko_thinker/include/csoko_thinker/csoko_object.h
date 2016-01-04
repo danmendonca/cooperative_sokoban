@@ -27,16 +27,13 @@ namespace csoko_thinker{
 		int x,y;
 		float drawX, drawY;
 		bool isBox;
-		bool moveComplete;
 		bool mvX, mvY;
 		float toMoveX;
 		float toMoveY;
-		float dMov;
 		int mState;
 
 		void updateDrawCoord();
 		void addMove(float mx, float my);
-		bool lastMoveFinished();
 
 		CSokoObject(int x, int y, bool isBox, bool mvC= false);
 	};

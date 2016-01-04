@@ -67,6 +67,8 @@ CSoko_Thinker::CSoko_Thinker(int argc,char **argv)
 			for(auto r_nr : robotsToMoveNow())
 				moveRobotOnce(r_nr);
 
+			frame.signalUpdate(grid,objects);
+			sleep(0.8);
 
 			//frame.signalUpdate(grid,objects);
 			//printBoard(t2);
@@ -411,14 +413,12 @@ void CSoko_Thinker::moveRobotOnce(size_t r_index)
 		int cur_robXD = objects[rob_pos].drawX, cur_robYD = objects[rob_pos].drawY;
 
 		ROS_DEBUG("r:nr= %i and rob_pos = %i", r_nr, rob_pos);
-		ROS_DEBUG("(x, y) = (%i, %i) ", cur_robX, cur_robY);
-		ROS_DEBUG("(xD, yD) = (%i, %i)", cur_robXD, cur_robYD);
 
 		int dx = 0, dy = 0;
 		getMovementDelta(get<1>(r_mv).at(0), dx, dy);
 
-		size_t future_x = objects[rob_pos].x + dx;
-		size_t future_y = objects[rob_pos].y + dy;
+		size_t future_x = (get<0> (robots_pos[r_nr])) + dx;
+		size_t future_y = get<1> (robots_pos[r_nr]) + dy;
 
 		//is this robot the owner (or can be) of next tile?
 		if(!grid[future_y][future_x].isLockedTo(r_nr))
@@ -426,10 +426,46 @@ void CSoko_Thinker::moveRobotOnce(size_t r_index)
 				break;
 
 
-		performOneMove(map_table, robots_pos.at(r_nr), box_pos, get<1>(r_mv).at(0));
+		int box_index = getBoxPosByCoord(future_x, future_y);
+		bool skip = false;
 
-		grid[objects[rob_pos].y][objects[rob_pos].x].decreaseLock(r_nr);
+		if(objects[rob_pos].mState == STATE_MOV_NONE || (box_index > 0 && objects[box_index].mState == STATE_MOV_NONE ))
+		{
+			skip = true;
+			ROS_DEBUG("STATE_MOV_NONE");
+			objects[rob_pos].addMove(dx, dy);
+			if(box_index != -1)
+			{
+				objects[box_index].addMove(dx, dy);
+			}
+		}
+		else if(objects[rob_pos].mState == STATE_MOV_PROGRESS || (box_index > 0 && objects[box_index].mState == STATE_MOV_PROGRESS ))
+		{
+			objects[rob_pos].updateDrawCoord();
+			ROS_DEBUG("STATE_MOV_PROGRESS");
+			if(box_index != -1)
+			{
+				objects[box_index].updateDrawCoord();
+			}
+		}
+		else if(objects[rob_pos].mState == STATE_MOV_FINISHED)
+		{
+			ROS_DEBUG("STATE_MOV_FINISHED");
+			objects[rob_pos].mState = STATE_MOV_NONE;
+			grid[get<1>(robots_pos[r_nr])][get<0>(robots_pos[r_nr])].decreaseLock(r_nr);
+			performOneMove(map_table, robots_pos.at(r_nr), box_pos, get<1>(r_mv).at(0));
+			get<1>(r_mv).erase(get<1>(r_mv).begin());
+			get<1> (current_moves[i]).erase(get<1> (current_moves[i]).begin());
 
+			if(get<1>(r_mv).size() == 0)
+				current_moves.erase(current_moves.begin()+i);
+
+
+			int debugValue = (int)current_moves.size();
+			ROS_DEBUG("current_moves size = %i", debugValue );
+		}
+
+/*
 		float percentX=0.00, percentY=0.00;
 		float incdX=0.00, incdY=0.00;
 		bool incremented = false;
@@ -471,14 +507,14 @@ void CSoko_Thinker::moveRobotOnce(size_t r_index)
 			}
 			else if(percentX>=(float)abs(dx) && percentY>=(float)abs(dy))
 				break;
-			
+
 			if(boxFound)
 			{
 				if(!incremented)
 				{
 					objects[box_l_pos].x += dx;
 				}
-//				objects[box_l_pos].drawX += dx;
+				//				objects[box_l_pos].drawX += dx;
 				objects[box_l_pos].drawX += incdX;
 
 				if(!incremented)
@@ -486,32 +522,24 @@ void CSoko_Thinker::moveRobotOnce(size_t r_index)
 					objects[box_l_pos].y += dy;
 
 				}
-//				objects[box_l_pos].drawY += dy;
+				//				objects[box_l_pos].drawY += dy;
 				objects[box_l_pos].drawY += incdY;
 				incremented=true;
 			}
 
 			objects[rob_pos].x = future_x;
-//			objects[rob_pos].drawX += dx;
+			//			objects[rob_pos].drawX += dx;
 			objects[rob_pos].drawX += incdX;
 
 			objects[rob_pos].y = future_y;
-//			objects[rob_pos].drawY += dy;
+			//			objects[rob_pos].drawY += dy;
 			objects[rob_pos].drawY += incdY;
 
 			frame.signalUpdate(grid,objects);
 			sleep(0.8);
-		}
-
-		get<1>(r_mv).erase(get<1>(r_mv).begin());
-		get<1> (current_moves[i]).erase(get<1> (current_moves[i]).begin());
-
-		if(get<1>(r_mv).size() == 0)
-			current_moves.erase(current_moves.begin()+i);
+		}*/
 
 
-		int debugValue = (int)current_moves.size();
-		ROS_DEBUG("current_moves size = %i", debugValue );
 
 	}
 
