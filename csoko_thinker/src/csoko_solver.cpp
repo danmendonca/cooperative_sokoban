@@ -1,10 +1,3 @@
-/*
- * yo_shit.cpp
- *
- *  Created on: Dec 28, 2015
- *      Author: dmendonca
- */
-
 #include "csoko_thinker/csoko_solver.h"
 
 using namespace std;

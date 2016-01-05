@@ -50,6 +50,7 @@ CSoko_Thinker::CSoko_Thinker(int argc,char **argv)
 	occ_grid_sub = nh.subscribe(occ_grid_topic.c_str(), 1, &CSoko_Thinker::mapCallback, this);
 
 	bool solved = turn(map_table, robots_pos, boxes_pos, deliverys_pos, moves, 0);
+
 	if(!solved)
 	{
 		ROS_DEBUG("MAP has no possible solution");
@@ -473,82 +474,6 @@ void CSoko_Thinker::moveRobotOnce(size_t r_index)
 			int debugValue = (int)current_moves.size();
 			ROS_DEBUG("current_moves size = %i", debugValue );
 		}
-
-/*
-		float percentX=0.00, percentY=0.00;
-		float incdX=0.00, incdY=0.00;
-		bool incremented = false;
-		int box_l_pos = 0;
-		bool boxFound = false;
-		if(get<0>(box_pos) != numeric_limits<size_t>::max())
-		{
-			box_l_pos = getBoxPosByCoord(get<0>(robots_pos.at(r_nr)), get<1>(robots_pos.at(r_nr)));
-			boxFound = true;
-		}
-		while(true)
-		{
-			if(percentX<(float)abs(dx) && percentY<(float)abs(dy))
-			{
-				percentX+=0.01;
-				percentY+=0.01;
-				incdX=0.01;
-				if(dx <0)
-					incdX*=-1;
-				incdY=0.01;
-				if(dy <0)
-					incdY*=-1;
-			}
-			else if(percentX<(float)abs(dx))
-			{
-				percentX+=0.01;
-				incdX=0.01;
-				if(dx <0)
-					incdX*=-1;
-				incdY=0.0;
-			}
-			else if(percentY<(float)abs(dy))
-			{
-				percentY+=0.01;
-				incdY=0.01;
-				if(dy <0)
-					incdY*=-1;
-				incdX=0.0;
-			}
-			else if(percentX>=(float)abs(dx) && percentY>=(float)abs(dy))
-				break;
-
-			if(boxFound)
-			{
-				if(!incremented)
-				{
-					objects[box_l_pos].x += dx;
-				}
-				//				objects[box_l_pos].drawX += dx;
-				objects[box_l_pos].drawX += incdX;
-
-				if(!incremented)
-				{
-					objects[box_l_pos].y += dy;
-
-				}
-				//				objects[box_l_pos].drawY += dy;
-				objects[box_l_pos].drawY += incdY;
-				incremented=true;
-			}
-
-			objects[rob_pos].x = future_x;
-			//			objects[rob_pos].drawX += dx;
-			objects[rob_pos].drawX += incdX;
-
-			objects[rob_pos].y = future_y;
-			//			objects[rob_pos].drawY += dy;
-			objects[rob_pos].drawY += incdY;
-
-			frame.signalUpdate(grid,objects);
-			sleep(0.8);
-		}*/
-
-
 
 	}
 
