@@ -10,7 +10,8 @@
 using namespace std;
 
 
-bool Board::setRobot(size_t xx, size_t yy){
+bool Board::setRobot(size_t xx, size_t yy)
+{
 	bool correctRobotPos = false;
 	if(sData.size()> yy && sData.at(yy).size() > xx)
 		if(sData.at(yy).at(xx) == '@')
@@ -65,7 +66,8 @@ Board::Board(int xx, int yy, Table t)
 }
 
 
-Board::Board(string b) {
+Board::Board(string b)
+{
 	vector<string> data;
 	boost::split(data, b, boost::is_any_of("\n"));
 
@@ -74,18 +76,19 @@ Board::Board(string b) {
 	for (auto &row: data)
 		width = max(width, row.size());
 
-	map<char,char> maps = {{' ',' '}, {'.','.'}, {'@',' '},
-			{'#','#'}, {'$',' '}},
-					mapd = {{' ',' '}, {'.',' '}, {'@','@'},
-							{'#',' '}, {'$','*'}};
+	map<char,char> maps = {{' ',' '}, {'.','.'}, {'@',' '},	{'#','#'}, {'$',' '}},
+			mapd = {{' ',' '}, {'.',' '}, {'@','@'}, {'#',' '}, {'$','*'}};
 
-	for (size_t r = 0; r < data.size(); r++) {
+	for (size_t r = 0; r < data.size(); r++)
+	{
 		TableRow sTemp, dTemp;
-		for (size_t c = 0; c < width; c++) {
+		for (size_t c = 0; c < width; c++)
+		{
 			char ch = c < data[r].size() ? data[r][c] : ' ';
 			sTemp.push_back(maps[ch]);
 			dTemp.push_back(mapd[ch]);
-			if (ch == '@') {
+			if (ch == '@')
+			{
 				px = c;
 				py = r;
 			}
@@ -97,7 +100,8 @@ Board::Board(string b) {
 
 
 
-bool Board::move(int x, int y, int dx, int dy, Table &data) {
+bool Board::move(int x, int y, int dx, int dy, Table &data)
+{
 	if (sData[y+dy][x+dx] == '#' || data[y+dy][x+dx] != ' ')
 		return false;
 
@@ -106,7 +110,8 @@ bool Board::move(int x, int y, int dx, int dy, Table &data) {
 	return true;
 }
 
-bool Board::push(int x, int y, int dx, int dy, Table &data) {
+bool Board::push(int x, int y, int dx, int dy, Table &data)
+{
 	if (sData[y+2*dy][x+2*dx] == '#' || data[y+2*dy][x+2*dx] != ' ')
 		return false;
 
@@ -116,7 +121,8 @@ bool Board::push(int x, int y, int dx, int dy, Table &data) {
 	return true;
 }
 
-bool Board::isSolved(const Table &data) {
+bool Board::isSolved(const Table &data)
+{
 	for (size_t r = 0; r < data.size(); r++)
 		for (size_t c = 0; c < data[r].size(); c++)
 			if ((sData[r][c] == '.') != (data[r][c] == '*'))
@@ -124,43 +130,50 @@ bool Board::isSolved(const Table &data) {
 	return true;
 }
 
-string Board::solve() {
+string Board::solve()
+{
 	boost::unordered_set<Table, boost::hash<Table>> visited;
 	visited.insert(dData);
 
 	queue<tuple<Table, string, int, int> > open;
 	open.push(make_tuple(dData, "", px, py));
 
-	vector<tuple<int, int, char, char>> dirs = {
+	vector<tuple<int, int, char, char>> dirs =
+	{
 			make_tuple( 0, -1, 'u', 'U'),
 			make_tuple( 1,  0, 'r', 'R'),
 			make_tuple( 0,  1, 'd', 'D'),
 			make_tuple(-1,  0, 'l', 'L')
 	};
 
-	while (open.size() > 0) {
+	while (open.size() > 0)
+	{
+
+		//extracts open head tuple elements and then pop that tuple
 		Table temp, cur = get<0>(open.front());
 		string cSol = get<1>(open.front());
 		int x = get<2>(open.front());
 		int y = get<3>(open.front());
 		open.pop();
 
-		for (int i = 0; i < 4; ++i) {
+		//for each possible movement
+		for (int i = 0; i < 4; ++i)
+		{
 			temp = cur;
 			int dx = get<0>(dirs[i]);
 			int dy = get<1>(dirs[i]);
 
-			if (temp[y+dy][x+dx] == '*') {
-				if (push(x, y, dx, dy, temp) &&
-						visited.find(temp) == visited.end()) {
+			if (temp[y+dy][x+dx] == '*')
+			{
+				if (push(x, y, dx, dy, temp) &&	visited.find(temp) == visited.end())
+				{
 					if (isSolved(temp))
 						return cSol + get<3>(dirs[i]);
-					open.push(make_tuple(temp, cSol + get<3>(dirs[i]),
-							x+dx, y+dy));
+					open.push(make_tuple(temp, cSol + get<3>(dirs[i]), x+dx, y+dy));
 					visited.insert(temp);
 				}
-			} else if (move(x, y, dx, dy, temp) &&
-					visited.find(temp) == visited.end()) {
+			} else if (move(x, y, dx, dy, temp) && visited.find(temp) == visited.end())
+			{
 				if (isSolved(temp))
 					return cSol + get<2>(dirs[i]);
 				open.push(make_tuple(temp, cSol + get<2>(dirs[i]),
@@ -168,6 +181,8 @@ string Board::solve() {
 				visited.insert(temp);
 			}
 		}
+
+
 	}
 
 	return "No solution";
