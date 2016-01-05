@@ -80,7 +80,6 @@ void CSokoObject::updateDrawCoord()
 		delta = 0;
 
 		ROS_DEBUG("movement complete");
-		//sleep(3);
 	}
 }
 

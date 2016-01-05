@@ -101,7 +101,7 @@ void CSoko_Thinker::onUpdate(const ros::TimerEvent&)
 void CSoko_Thinker::timerCallback(const ros::TimerEvent& e)
 {
 	ROS_DEBUG("CALLBACK");
-	ROS_INFO("Timer callback!");
+	ROS_DEBUG("Timer callback!");
 }
 
 

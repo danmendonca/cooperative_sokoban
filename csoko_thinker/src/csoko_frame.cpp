@@ -1,9 +1,9 @@
 #include "csoko_thinker/csoko_frame.h"
 
 sf::Texture bg;
-			sf::Texture robotIcon;
-			sf::Texture boxIcon;
-			sf::Texture goal;
+sf::Texture robotIcon;
+sf::Texture boxIcon;
+sf::Texture goal;
 
 using namespace std;
 
@@ -69,58 +69,57 @@ void CSokoFrame::signalUpdate(vector<vector<CSokoTile> > grid, vector<CSokoObjec
 
 void CSokoFrame::draw()
 {
-		window.clear(sf::Color::White);
-		//Draw Background
-		string bgPath = mName;
-		if (!bg.loadFromFile(bgPath+".png"))
-		{
-		    // error...
-		}
-		bgSprite.setTexture(bg);
-		window.draw(bgSprite);
-		if(bg.getSize().x != 0)
-		{
+	window.clear(sf::Color::White);
+	//Draw Background
+	string bgPath = mName;
+	if (!bg.loadFromFile(bgPath+".png"))
+	{
+		// error...
+	}
+	bgSprite.setTexture(bg);
+	window.draw(bgSprite);
+	if(bg.getSize().x != 0)
+	{
 
-		}
-		else
-		{
-			cout << "Map graphics not loaded" << endl;
-		}
+	}
+	else
+	{
+		cout << "Map graphics not loaded" << endl;
+	}
 
-		//Draw Goal
-		for(int i=0;i<grid.size();i++)
+	//Draw Goal
+	for(int i=0;i<grid.size();i++)
+	{
+		for(int j=0;j<grid[i].size();j++)
 		{
-			for(int j=0;j<grid[i].size();j++)
+			CSokoTile tile = grid[i][j];
+			if(tile.isGoal)
 			{
-				CSokoTile tile = grid[i][j];
-				if(tile.isGoal)
+				if(goal.getSize().x != 0)
 				{
-					if(goal.getSize().x != 0)
-					{
-						//cout << "Drawing goal" << endl;
-						goalSprite.setTexture(goal);
-						goalSprite.setPosition(sf::Vector2f(j*16, i*16));
-						window.draw(goalSprite);
-					}
-					else
-						cout << "Goal sprite not loaded" << endl;
+					goalSprite.setTexture(goal);
+					goalSprite.setPosition(sf::Vector2f(j*16, i*16));
+					window.draw(goalSprite);
 				}
-			}
-		}
-		sf::Sprite dynSprite;
-		//Draw Robots and Boxes
-		for(int j=0;j<objects.size();j++)
-		{
-			if(boxIcon.getSize().x != 0 & robotIcon.getSize().x != 0)
-			{
-				if(objects[j].isBox)
-					dynSprite.setTexture(boxIcon);
 				else
-					dynSprite.setTexture(robotIcon);
-				dynSprite.setPosition(sf::Vector2f((float)objects[j].drawX*16.00, (float)objects[j].drawY*16.00));
-				window.draw(dynSprite);
+					cout << "Goal sprite not loaded" << endl;
 			}
 		}
-        window.display();
+	}
+	sf::Sprite dynSprite;
+	//Draw Robots and Boxes
+	for(int j=0;j<objects.size();j++)
+	{
+		if(boxIcon.getSize().x != 0 & robotIcon.getSize().x != 0)
+		{
+			if(objects[j].isBox)
+				dynSprite.setTexture(boxIcon);
+			else
+				dynSprite.setTexture(robotIcon);
+			dynSprite.setPosition(sf::Vector2f((float)objects[j].drawX*16.00, (float)objects[j].drawY*16.00));
+			window.draw(dynSprite);
+		}
+	}
+	window.display();
 }
 }

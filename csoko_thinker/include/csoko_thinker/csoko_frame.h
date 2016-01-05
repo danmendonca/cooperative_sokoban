@@ -34,32 +34,32 @@
 
 namespace csoko_thinker
 {
-	class CSokoFrame
-	{
-		public:
-			CSokoFrame();
+class CSokoFrame
+{
+public:
+	CSokoFrame();
 
-			void signalUpdate(std::vector<std::vector<CSokoTile> > grid, std::vector<CSokoObject> objects);
-			void draw();
+	void signalUpdate(std::vector<std::vector<CSokoTile> > grid, std::vector<CSokoObject> objects);
+	void draw();
 
-			void loadMap(std::string mapName);
+	void loadMap(std::string mapName);
 
-			void closeWindow();
+	void closeWindow();
 
-			static std::string path_to_res;
+	static std::string path_to_res;
 
-			static void setPathToResources(std::string);
+	static void setPathToResources(std::string);
 
 
-		private:
-			sf::Sprite bgSprite;
-			
-			sf::RenderWindow window;
-			std::string mName;
-			std::vector<CSokoObject> objects;
-			std::vector<std::vector<CSokoTile> > grid;
-			sf::Sprite goalSprite;
+private:
+	sf::Sprite bgSprite;
 
-	};
+	sf::RenderWindow window;
+	std::string mName;
+	std::vector<CSokoObject> objects;
+	std::vector<std::vector<CSokoTile> > grid;
+	sf::Sprite goalSprite;
+
+};
 }
 #endif

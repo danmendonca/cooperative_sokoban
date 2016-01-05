@@ -374,36 +374,3 @@ bool turn(const Table t, const Vec_t_pos rs, const Vec_t_pos bs, const Vec_t_pos
 
 	return false;
 }
-
-
-void dynamicSolPrint(Table t){
-	printBoard(t);
-	Board b(0, 0, t);
-	int r_x = b.px;
-	int r_y = b.py;
-	string solution = b.solve();
-
-	if(solution.at(0) != 'N')
-		for(auto c: solution){
-			int newX = 0, newY=0;
-			if(c == 'd' || c == 'D')
-				newY = 1;
-			else if(c == 'u' || c == 'U')
-				newY= -1;
-			else if(c == 'l' || c == 'L')
-				newX= -1;
-			else if(c == 'r' || c == 'R')
-				newX = 1;
-
-			if(t.at(r_y +newY).at(r_x + newX) == '$')
-				t.at(r_y +newY + newY).at(r_x + newX + newX) = '$';
-
-			t.at(r_y +newY).at(r_x + newX) = '@';
-			t.at(r_y).at(r_x) = ' ';
-			r_y += newY;
-			r_x += newX;
-
-			printBoard(t);
-		}
-	cout<<endl<<endl<<solution<<endl<<endl;
-}
