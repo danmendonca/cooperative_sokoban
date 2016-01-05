@@ -1,5 +1,5 @@
-#ifndef CSOKO_TILE
-#define CSOKO_TILE
+#ifndef CSOKO_TILE__H
+#define CSOKO_TILE__H
 
 
 

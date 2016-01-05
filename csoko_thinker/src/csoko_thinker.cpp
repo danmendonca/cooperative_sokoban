@@ -46,21 +46,18 @@ CSoko_Thinker::CSoko_Thinker(int argc,char **argv)
 	ros::Timer timer = nh.createTimer(ros::Duration(0.1), &CSoko_Thinker::timerCallback,this);
 	///TODO START LOGIC
 
-	occ_grid_topic = "map";
-	occ_grid_sub = nh.subscribe(occ_grid_topic.c_str(), 1, &CSoko_Thinker::mapCallback, this);
+	//occ_grid_topic = "map";
+	//occ_grid_sub = nh.subscribe(occ_grid_topic.c_str(), 1, &CSoko_Thinker::mapCallback, this);
 
 	bool solved = turn(map_table, robots_pos, boxes_pos, deliverys_pos, moves, 0);
 
 	if(!solved)
 	{
-		ROS_DEBUG("MAP has no possible solution");
+		ROS_ERROR("MAP has no possible solution. Ctrl+C to exit.");
 		exit(-1);
 	}
 
 	updateCurrentMovements();
-
-	if(CSOKO_THINKER_DEBUG)
-	{
 
 		do
 		{
@@ -80,7 +77,7 @@ CSoko_Thinker::CSoko_Thinker(int argc,char **argv)
 
 		ROS_DEBUG("NO MORE MOVEMENTS");
 
-	}
+
 }
 
 
@@ -139,7 +136,7 @@ void CSoko_Thinker::update()
 
 /**
  *
- */
+ *
 void CSoko_Thinker::mapCallback(const nav_msgs::OccupancyGrid& msg){
 	this->occ_grid_msg = msg;
 	ROS_INFO("received map!");
@@ -177,12 +174,12 @@ void CSoko_Thinker::mapCallback(const nav_msgs::OccupancyGrid& msg){
 
 	}
 }
-
+*/
 
 
 /**
  *
- */
+ *
 void CSoko_Thinker::callback(const sensor_msgs::LaserScan& msg)
 {
 	laser_scan_msg = msg;
@@ -214,12 +211,12 @@ void CSoko_Thinker::callback(const sensor_msgs::LaserScan& msg)
 
 	cmd_vel_pub.publish(cmd);
 }
-
+*/
 
 
 /**
  *
- */
+ *
 void CSoko_Thinker::odometryCallback(const nav_msgs::Odometry msg){
 	if(odom_state == 0){
 		odom_msg = msg;
@@ -256,6 +253,7 @@ void CSoko_Thinker::odometryCallback(const nav_msgs::Odometry msg){
 	//save it
 	odom_msg = msg;
 }
+*/
 
 
 

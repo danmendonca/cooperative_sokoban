@@ -60,42 +60,42 @@ private:
 	 * Subscribers
 	 *******************************************/
 
-	ros::Subscriber odom_sub;
+	//ros::Subscriber odom_sub;
 
-	ros::Subscriber occ_grid_sub;
+	//ros::Subscriber occ_grid_sub;
 
-	ros::Subscriber laser_sub;
+	//ros::Subscriber laser_sub;
 
 
 	/********************************************
 	 * Publishers
 	 *******************************************/
 
-	ros::Publisher cmd_vel_pub;
+	//ros::Publisher cmd_vel_pub;
 
 
 	/********************************************
 	 *Topics
 	 *******************************************/
 
-	std::string occ_grid_topic;
+//	std::string occ_grid_topic;
 
-	std::string odom_topic;
+	//std::string odom_topic;
 
-	std::string laser_topic;
+	//std::string laser_topic;
 
-	std::string speeds_topic;
+	//std::string speeds_topic;
 
 
 	/********************************************
 	 * Messages
 	 *******************************************/
 
-	nav_msgs::Odometry odom_msg;
+	//nav_msgs::Odometry odom_msg;
 
-	nav_msgs::OccupancyGrid occ_grid_msg;
+	//nav_msgs::OccupancyGrid occ_grid_msg;
 
-	sensor_msgs::LaserScan laser_scan_msg;
+	//sensor_msgs::LaserScan laser_scan_msg;
 
 
 	/********************************************
@@ -112,11 +112,11 @@ public:
 
 	~CSoko_Thinker(void);
 
-	void mapCallback(const nav_msgs::OccupancyGrid& msg);
+	//void mapCallback(const nav_msgs::OccupancyGrid& msg);
 
-	void callback(const sensor_msgs::LaserScan& msg);
+	//void callback(const sensor_msgs::LaserScan& msg);
 
-	void odometryCallback(const nav_msgs::Odometry msg);
+	//void odometryCallback(const nav_msgs::Odometry msg);
 
 	void timerCallback(const ros::TimerEvent& e);
 
