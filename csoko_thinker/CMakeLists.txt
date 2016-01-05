@@ -6,10 +6,6 @@ add_definitions(-std=c++11)
 find_package(catkin REQUIRED COMPONENTS
 	roscpp
 	tf
-	stdr_msgs
-	geometry_msgs
-	sensor_msgs
-	nav_msgs
  )
 
 
@@ -35,18 +31,12 @@ catkin_package(
   	CATKIN_DEPENDS
     	roscpp
     	tf
-    	stdr_msgs
-    	geometry_msgs
-    	sensor_msgs
-    	nav_msgs
 )
 
 
 ###########
 ## Build ##
 ###########
-
-#set(CMAKE_BUILD_TYPE Release) #TODO remove this line or uncomment?
 
 include_directories(
 	include
@@ -55,7 +45,6 @@ include_directories(
 
 add_executable(csoko_thinker src/csoko_thinker.cpp src/csoko_frame.cpp
  	src/csoko_object.cpp src/csoko_tile.cpp src/csoko_solver.cpp)
-add_dependencies(csoko_thinker stdr_msgs_gencpp) # wait for stdr_msgs to be build
 
 target_link_libraries(csoko_thinker 
 	${catkin_LIBRARIES} sfml-graphics sfml-window sfml-system
