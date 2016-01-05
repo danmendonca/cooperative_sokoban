@@ -30,7 +30,7 @@ namespace csoko_thinker{
 
 CSoko_Thinker::CSoko_Thinker(int argc,char **argv)
 {
-	odom_state = 0;
+
 	string res_path(argv[1]);
 	string name = res_path + argv[2];
 
@@ -42,12 +42,7 @@ CSoko_Thinker::CSoko_Thinker(int argc,char **argv)
 
 	loadMap(name);
 
-	//	ros::Timer timer = nh.createTimer(ros::Duration(0.1), onUpdate);
 	ros::Timer timer = nh.createTimer(ros::Duration(0.1), &CSoko_Thinker::timerCallback,this);
-	///TODO START LOGIC
-
-	//occ_grid_topic = "map";
-	//occ_grid_sub = nh.subscribe(occ_grid_topic.c_str(), 1, &CSoko_Thinker::mapCallback, this);
 
 	bool solved = turn(map_table, robots_pos, boxes_pos, deliverys_pos, moves, 0);
 
@@ -59,23 +54,17 @@ CSoko_Thinker::CSoko_Thinker(int argc,char **argv)
 
 	updateCurrentMovements();
 
-		do
-		{
+	do
+	{
 
-			for(auto r_nr : robotsToMoveNow())
-				moveRobotOnce(r_nr);
+		for(auto r_nr : robotsToMoveNow())
+			moveRobotOnce(r_nr);
 
-			frame.signalUpdate(grid,objects);
-			//sleep(0.2);
+		frame.signalUpdate(grid,objects);
 
-			//frame.signalUpdate(grid,objects);
-			//printBoard(t2);
-			//sleep(1);
+	} while(current_moves.size() > 0);
 
-
-		} while(current_moves.size() > 0);
-
-		ROS_DEBUG("NO MORE MOVEMENTS");
+	ROS_DEBUG("NO MORE MOVEMENTS");
 
 
 }
@@ -119,7 +108,8 @@ void CSoko_Thinker::timerCallback(const ros::TimerEvent& e)
 /**
  *
  */
-void CSoko_Thinker::updateMap() {
+void CSoko_Thinker::updateMap()
+{
 	//TODO NAVIGATION LOGIC
 }
 
@@ -132,128 +122,6 @@ void CSoko_Thinker::update()
 {
 	//	map.drawAll(frame);
 }
-
-
-/**
- *
- *
-void CSoko_Thinker::mapCallback(const nav_msgs::OccupancyGrid& msg){
-	this->occ_grid_msg = msg;
-	ROS_INFO("received map!");
-
-	this->map_height = msg.info.height;
-	this->map_width = msg.info.width;
-	ROS_INFO("map_height: %i\nmap_width: %i", this->map_height, this->map_width);
-
-
-
-	this->my_map = new int8_t*[this->map_height];
-	for(int i = 0; i < this->map_height; i++){
-		my_map[i] = new int8_t[this->map_width];
-
-		for(int j = 0; j < this->map_width; j++){
-			my_map[i][j] = msg.data.at(i*j);
-		}
-	}
-
-	if(CSOKO_THINKER_DEBUG){
-		ROS_INFO("CSOKO_THINKER_DEBUG");
-		try{
-
-			std::ofstream outfile ("map.csv");
-			for(int i = 0; i < this->map_height; i++){
-				for(int j = 0; j < this->map_width; j++){
-					outfile << (int) my_map[i][j] << ",";
-				}
-				outfile << std::endl;
-			}
-			outfile.close();
-		} catch(...){
-			ROS_INFO("Exception!");
-		}
-
-	}
-}
-*/
-
-
-/**
- *
- *
-void CSoko_Thinker::callback(const sensor_msgs::LaserScan& msg)
-{
-	laser_scan_msg = msg;
-	float linear = 0, rotational = 0;
-	for(unsigned int i = 0 ; i < laser_scan_msg.ranges.size() ; i++)
-	{
-		float real_dist = laser_scan_msg.ranges[i];
-		linear -= cos(laser_scan_msg.angle_min + i * laser_scan_msg.angle_increment) / (1.0 + real_dist * real_dist);
-		rotational -= sin(laser_scan_msg.angle_min + i * laser_scan_msg.angle_increment) / (1.0 + real_dist * real_dist);
-	}
-	geometry_msgs::Twist cmd;
-
-	linear /= laser_scan_msg.ranges.size();
-	rotational /= laser_scan_msg.ranges.size();
-
-	//~ ROS_DEBUG("%f %f",linear,rotational);
-
-	if(linear > 0.3)
-	{
-		linear = 0.3;
-	}
-	else if(linear < -0.3)
-	{
-		linear = -0.3;
-	}
-
-	cmd.linear.x = (odom_state < 3) ? 0.3 + linear : 0;
-	cmd.angular.z = (odom_state > 1) ? 0.0174532925 * 10 : rotational;
-
-	cmd_vel_pub.publish(cmd);
-}
-*/
-
-
-/**
- *
- *
-void CSoko_Thinker::odometryCallback(const nav_msgs::Odometry msg){
-	if(odom_state == 0){
-		odom_msg = msg;
-		odom_state = 1;
-		return;
-	}
-
-	float currentXPos = msg.pose.pose.position.x;
-	float currentYPos = msg.pose.pose.position.y;
-	float oldXPos = odom_msg.pose.pose.position.x;
-	float oldYPos = odom_msg.pose.pose.position.y;
-	float delta = 0.0000001;
-
-	bool stuckX = ((currentXPos - oldXPos) == 0) ? true : false;
-	bool stuckY = ((currentYPos - oldYPos) == 0) ? true: false;
-
-	float dx = std::abs(currentXPos - oldXPos),
-			dy = std::abs(currentYPos - oldYPos);
-
-	if(stuckX && stuckY){
-
-		if(odom_state == 1) odom_state = 2;
-		else if(odom_state == 2)  odom_state = 3;
-		else if(odom_state == 3) odom_state = 2;
-
-		ROS_INFO("dx = %f ; dy =  %f ; odomState= %i", dx, dy, odom_state);
-	}
-	else{
-		odom_state = 1;
-		ROS_INFO("dx = %f ; dy =  %f ; odomState= %i", dx, dy, odom_state);
-	}
-	//odom_msg.pose.pose.position.z = 0.0;
-
-	//save it
-	odom_msg = msg;
-}
-*/
 
 
 
@@ -287,7 +155,7 @@ void CSoko_Thinker::loadMap(string mapName)
 				}
 				else if(line[i] == '@')
 				{
-					cout << "Found Robot at " << i << "/" << row << endl;
+					ROS_DEBUG("Found Robot at (x,y) = (%i, %i)", (int) i, (int) row);
 					CSokoTile tile = CSokoTile(i,row,false, false);
 					CSokoObject r(i,row,false);
 					objects.push_back(r);
@@ -398,7 +266,7 @@ void CSoko_Thinker::moveRobotOnce(size_t r_index)
 {
 
 	updateCurrentMovements();
-	ROS_WARN("current_movements size = %i", (int) current_moves.size());
+	ROS_DEBUG("current_movements size = %i", (int) current_moves.size());
 
 	for( int i = 0; i < current_moves.size(); i++)
 	{
@@ -427,7 +295,7 @@ void CSoko_Thinker::moveRobotOnce(size_t r_index)
 		{
 			if(!lockPath(r_mv))
 			{
-				ROS_WARN("COULD NOT LOCK PATH TO ME. r_nr: %i", r_nr);
+				ROS_DEBUG("COULD NOT LOCK PATH TO ME. r_nr: %i", r_nr);
 				break;
 			}
 		}
@@ -437,7 +305,8 @@ void CSoko_Thinker::moveRobotOnce(size_t r_index)
 		int box_index = getBoxPosByCoord(future_x, future_y);
 		bool skip = false;
 
-		if(objects[rob_pos].mState == STATE_MOV_NONE || (box_index > 0 && objects[box_index].mState == STATE_MOV_NONE ))
+		if(objects[rob_pos].mState == STATE_MOV_NONE ||
+				(box_index > 0 && objects[box_index].mState == STATE_MOV_NONE ))
 		{
 			skip = true;
 			ROS_DEBUG("STATE_MOV_NONE");
@@ -447,7 +316,8 @@ void CSoko_Thinker::moveRobotOnce(size_t r_index)
 				objects[box_index].addMove(dx, dy);
 			}
 		}
-		else if(objects[rob_pos].mState == STATE_MOV_PROGRESS || (box_index > 0 && objects[box_index].mState == STATE_MOV_PROGRESS ))
+		else if(objects[rob_pos].mState == STATE_MOV_PROGRESS ||
+				(box_index > 0 && objects[box_index].mState == STATE_MOV_PROGRESS ))
 		{
 			objects[rob_pos].updateDrawCoord();
 			ROS_DEBUG("STATE_MOV_PROGRESS");
@@ -541,6 +411,8 @@ vector<size_t> CSoko_Thinker::robotsToMoveNow()
 	return robots;
 }
 
+
+
 bool CSoko_Thinker::lockPath(const Robot_Move &r_mv)
 {
 	size_t r_nr = get<0>(r_mv);
@@ -549,6 +421,8 @@ bool CSoko_Thinker::lockPath(const Robot_Move &r_mv)
 
 	return lockPath(r_nr, pos, mv);
 }
+
+
 
 bool CSoko_Thinker::lockPath(const size_t &r_nr, const XY_COORD &pos, string &mv)
 {
