@@ -319,9 +319,9 @@ void CSoko_Thinker::moveRobotOnce(size_t r_index)
 		else if(objects[rob_pos].mState == STATE_MOV_PROGRESS ||
 				(box_index > 0 && objects[box_index].mState == STATE_MOV_PROGRESS ))
 		{
-			objects[rob_pos].updateDrawCoord();
+			bool isMoveBox = objects[rob_pos].updateDrawCoord();
 			ROS_DEBUG("STATE_MOV_PROGRESS");
-			if(box_index != -1)
+			if(box_index != -1 && isMoveBox)
 			{
 				objects[box_index].updateDrawCoord();
 			}

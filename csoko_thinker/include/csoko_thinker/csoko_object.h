@@ -32,10 +32,12 @@ public:
 	float toMoveY;
 	int mState;
 	int delta;
-	void updateDrawCoord();
+	int facing;
+	float rotation;
+	bool updateDrawCoord();
 	void addMove(float mx, float my);
 
-	CSokoObject(int x, int y, bool isBox, bool mvC= false);
+	CSokoObject(int x, int y, bool isBox);
 };
 }
 #endif

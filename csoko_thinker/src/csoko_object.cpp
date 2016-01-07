@@ -6,7 +6,7 @@ namespace csoko_thinker{
  *SokobanObject class
  *
  ****************************************/
-CSokoObject::CSokoObject(int x, int y, bool isBox, bool mvC)
+CSokoObject::CSokoObject(int x, int y, bool isBox)
 {
 	this->x = x;
 	this->y = y;
@@ -19,13 +19,62 @@ CSokoObject::CSokoObject(int x, int y, bool isBox, bool mvC)
 	mvX = false;
 	mvY = false;
 	delta = 0;
+	facing = 0;		//2 - left, 3 - up, 0 - right, 1 - down
+	rotation = 0.f;
 }
 
-void CSokoObject::updateDrawCoord()
+
+bool CSokoObject::updateDrawCoord()
 {
 
 	bool enoughY = false;
 	bool enoughX = false;
+
+	//rotation = 9;
+
+	if(!isBox){
+
+
+		if(rotation > 360)
+			rotation = 0;
+
+
+		if(facing == 3 && rotation != 270 )
+		{
+			if(rotation > 270)
+				rotation -= 1;
+			else
+				rotation +=1;
+			return false;
+		}
+		else if(facing == 1 && rotation != 90 )
+		{
+			if(rotation > 90)
+				rotation -= 1;
+			else
+				rotation +=1;
+			return false;
+		}
+		else if(facing == 2 && rotation != 180 )
+		{
+			if(rotation > 180)
+				rotation -= 1;
+			else
+				rotation +=1;
+			return false;
+		}
+		else if(facing == 0 && rotation != 0)
+		{
+			if(rotation > 0)
+				rotation -= 1;
+			else
+				rotation +=1;
+			return false;
+		}
+	}
+
+	//rotation += 0.5;
+	//return;
 
 	ROS_DEBUG("X whereTo: %f whereNow: %f", toMoveX, drawX);
 	ROS_DEBUG("Y whereTo: %f whereNow: %f", toMoveY, drawY);
@@ -81,6 +130,8 @@ void CSokoObject::updateDrawCoord()
 
 		ROS_DEBUG("movement complete");
 	}
+
+	return true;
 }
 
 void CSokoObject::addMove(float mx, float my)
@@ -90,5 +141,14 @@ void CSokoObject::addMove(float mx, float my)
 	mvY = (my != 0) ? true : false;
 	toMoveX = drawX + mx;
 	toMoveY = drawY + my;
+
+	if(mx > 0 )
+		facing  = 0;
+	else if(mx < 0 )
+		facing  = 2;
+	else if(my > 0 )
+		facing  = 1;
+	else if(my < 0 )
+		facing  = 3;
 }
 }

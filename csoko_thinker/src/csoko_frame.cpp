@@ -106,17 +106,24 @@ void CSokoFrame::draw()
 			}
 		}
 	}
-	sf::Sprite dynSprite;
+
 	//Draw Robots and Boxes
 	for(int j=0;j<objects.size();j++)
 	{
+		sf::Sprite dynSprite;
 		if(boxIcon.getSize().x != 0 & robotIcon.getSize().x != 0)
 		{
 			if(objects[j].isBox)
 				dynSprite.setTexture(boxIcon);
 			else
 				dynSprite.setTexture(robotIcon);
-			dynSprite.setPosition(sf::Vector2f((float)objects[j].drawX*16.00, (float)objects[j].drawY*16.00));
+			dynSprite.setPosition(sf::Vector2f((float)objects[j].drawX*16.00 + 8, (float)objects[j].drawY*16.00 + 8));
+			dynSprite.setOrigin(8, 8);
+			if(!objects[j].isBox)
+				dynSprite.setRotation(objects[j].rotation);
+
+			//dynSprite.setOrigin(0, 0);
+			//cout<< dynSprite.getRotation() <<endl;
 			window.draw(dynSprite);
 		}
 	}
